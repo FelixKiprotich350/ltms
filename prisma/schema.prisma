@@ -1,0 +1,214 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL") // Use environment variable to store the connection URL
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model ClientConfiguration {
+  uuid       String   @id @default(uuid()) // UUID as a unique field
+  clientName String
+  salesTax   Decimal
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Person {
+  id          Int       @id @default(autoincrement()) // Int as PK
+  uuid        String    @unique @default(uuid()) // UUID as a unique field
+  firstName   String
+  lastName    String
+  email       String    @unique
+  phoneNumber String?   @unique
+  dateOfBirth DateTime?
+  address     String?
+  gender      String?
+  nationality String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        TrtUser?
+  Project     Project[]
+}
+
+model TrtUser {
+  id             Int      @id @default(autoincrement()) // Int as PK
+  uuid           String   @unique @default(uuid()) // UUID as a unique field
+  username       String   @unique
+  email          String   @unique
+  loginStatus    String   @default("ENABLED")
+  approvalStatus String   @default("PENDING")
+  passwordHash   String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  Person         Person   @relation(fields: [personUuid], references: [uuid])
+  personUuid     String   @unique //fk to person uuid
+  Role           Role?    @relation(fields: [roleUuid], references: [uuid])
+  roleUuid       String?  
+}
+
+model Role {
+  uuid        String       @id @default(uuid()) // UUID as a unique field
+  name        String       @unique
+  description String?
+  users       TrtUser[]
+  permissions Permission[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Project {
+  id          Int       @id @default(autoincrement()) // Int as PK
+  uuid        String    @unique @default(uuid()) // UUID as a unique field
+  name        String
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  status      String
+  personId    Int
+  person      Person    @relation(fields: [personId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Permission {
+  id          Int      @id @default(autoincrement()) // Int as PK
+  uuid        String   @unique @default(uuid()) // UUID as a unique field
+  name        String   @unique
+  description String?
+  roles       Role[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+//inventory models
+
+model Supplier {
+  id         Int      @id @default(autoincrement())
+  uuid       String   @unique @default(uuid()) // UUID as a unique field
+  personUuid String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model StockReceived {
+  id           Int           @id @default(autoincrement())
+  uuid         String        @unique @default(uuid()) // UUID as a unique field
+  productUuid  String
+  product      Product       @relation(fields: [productUuid], references: [uuid])
+  quantity     Decimal
+  receivedAt   DateTime      @default(now())
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  PackUnitUuid String
+  PackingUnit  PackagingUnit @relation(fields: [PackUnitUuid], references: [uuid])
+}
+
+model Product {
+  id            Int             @id @default(autoincrement())
+  uuid          String          @unique @default(uuid()) // UUID as a unique field
+  name          String
+  description   String?
+  basicUnitUuid String
+  sellingPrice  Decimal         @default(1)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  skuLevel      Decimal         @default(1)
+  Sales         ProductSale[]
+  categoryUuid  String // Foreign key for the category
+  Category      Category        @relation(fields: [categoryUuid], references: [uuid]) // Enforce relationship
+  PackagingUnit PackagingUnit   @relation(fields: [basicUnitUuid], references: [uuid])
+  basketSale    basketSale[]
+  StockReceived StockReceived[]
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  uuid        String    @unique @default(uuid()) // UUID as a unique field
+  name        String
+  description String?
+  Products    Product[] // One-to-many relationship with Product
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model PackagingUnit {
+  id            Int             @id @default(autoincrement())
+  uuid          String          @unique @default(uuid()) // UUID as a unique field
+  name          String
+  countable     Boolean
+  Products      Product[] // One-to-many relationship with Product
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  StockReceived StockReceived[]
+}
+
+model ProductPackUnit {
+  id           Int      @id @default(autoincrement())
+  uuid         String   @unique @default(uuid()) // UUID as a unique field
+  productUuid  String
+  unitFactor   Decimal
+  packUnitUuid String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+///sales modesls
+model SalesMaster {
+  salesCode     String          @id // UUID as a unique field
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  ProductSale   ProductSale[]
+  SalesPayments SalesPayments[]
+}
+
+model ProductSale {
+  id                  Int         @id @default(autoincrement())
+  uuid                String      @unique @default(uuid()) // UUID as a unique field
+  productUuid         String
+  masterCode          String
+  InventoryProduct    Product     @relation(fields: [productUuid], references: [uuid])
+  quantity            Decimal
+  price               Decimal
+  taxPercentage       Decimal
+  packingUnitUuid     String
+  paymentStatus       String
+  userUuid            String
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  productPackUnitUuid String?
+  SalesMaster         SalesMaster @relation(fields: [masterCode], references: [salesCode])
+}
+
+model basketSale {
+  id                  Int      @id @default(autoincrement())
+  uuid                String   @unique @default(uuid()) // UUID as a unique field
+  description         String
+  groupCode           String
+  productUuid         String
+  product             Product  @relation(fields: [productUuid], references: [uuid])
+  quantity            Decimal
+  price               Decimal
+  taxPercentage       Decimal
+  packingUnitUuid     String
+  userUuid            String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  productPackUnitUuid String?
+}
+
+//payments
+model SalesPayments {
+  id              Int         @id @default(autoincrement()) // Int as PK
+  uuid            String      @unique @default(uuid()) // UUID as a unique field
+  salesMasterCode String
+  paymentMode     String
+  amountPaid      Decimal
+  refference      String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  SalesMaster     SalesMaster @relation(fields: [salesMasterCode], references: [salesCode])
+}

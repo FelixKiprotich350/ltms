@@ -1,0 +1,62 @@
+@use "@carbon/react/scss/breakpoint" as breakpoints;
+@use "@carbon/react/scss/spacing" as spacing;
+@use "@carbon/react/scss/type" as types;
+@use "@carbon/react/scss/theme" as themes;
+@use "@carbon/colors" as colors;
+@use '@carbon/type';
+
+
+// Patient List Table
+.searchContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+}
+
+.searchContainer > div {
+  align-self: center;
+  justify-self: flex-end;
+}
+
+.searchBox {
+  width: 80%;
+  max-width: 16rem;
+  background-color: themes.$layer-02;
+  border-bottom-color: themes.$layer-accent-01;
+}
+
+
+// page.scss
+
+.stockItemSearchContainer {
+  position: relative;
+  padding-bottom: 10px; /* Adds some spacing below the search bar */
+}
+
+.searchResults {
+  position: absolute;
+  top: 100%;  // Position below the search input
+  left: 0;
+  right: 0;
+  z-index: 10;  // Ensure the search results stay above the table
+  background: white;
+  border: 1px solid #ccc;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.TableContainerWrapper {
+  position: relative;
+  height: calc(100vh - 150px); /* Adjust this height as needed */
+  overflow: hidden;
+}
+
+.TableContainerWrapper .TableContainer {
+  height: 100%;
+  overflow-y: auto; /* Enables scroll for table content */
+}
+
+.tileContent {
+  padding-top: 4 !important; 
+  padding-bottom: 4; 
+}
