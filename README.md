@@ -1,10 +1,10 @@
-Tagile Reporting Tool
+Letter Trail Management System
 
 ## Getting Started
 
 Step 1: Clone Repository
 
-Step 2: Switch to trt directory and install dependencies by running the following command
+Step 2: Switch to ltms directory and install dependencies by running the following command
 
 ```bash
 npm install
