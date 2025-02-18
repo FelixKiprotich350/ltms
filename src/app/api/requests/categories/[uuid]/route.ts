@@ -8,12 +8,9 @@ export async function GET(
 ) {
   const { uuid } = params;
   try {
-    const category = await prisma.category.findUnique({
+    const category = await prisma.organisationDepartment.findUnique({
       where: {
         uuid: uuid,
-      },
-      include: {
-        Products: true, // Include related products
       },
     });
 
@@ -31,26 +28,25 @@ export async function GET(
       { error: "Failed   to fetch category" },
       { status: 500 }
     );
+  } finally {
+    prisma.$disconnect();
   }
-  finally{
-      prisma.$disconnect();
-    }
 }
 
 // PUT: Update a category by ID
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { uuid: string } }
 ) {
-  const { id } = params;
+  const { uuid } = params;
 
   try {
     const body = await request.json();
     const { name, description } = body;
 
-    const updatedCategory = await prisma.category.update({
+    const updatedCategory = await prisma.organisationDepartment.update({
       where: {
-        id: parseInt(id),
+        uuid: uuid,
       },
       data: {
         name,
@@ -65,10 +61,9 @@ export async function PUT(
       { error: "Failed to update category" },
       { status: 500 }
     );
+  } finally {
+    prisma.$disconnect();
   }
-  finally{
-      prisma.$disconnect();
-    }
 }
 
 // DELETE: Delete a category by ID
@@ -79,9 +74,9 @@ export async function DELETE(
   const { id } = params;
 
   try {
-    await prisma.category.delete({
+    await prisma.organisationDepartment.delete({
       where: {
-        id: parseInt(id),
+        uuid: id,
       },
     });
 
@@ -92,8 +87,39 @@ export async function DELETE(
       { error: "Failed to delete category" },
       { status: 500 }
     );
+  } finally {
+    prisma.$disconnect();
   }
-  finally{
-      prisma.$disconnect();
-    }
+}
+
+
+export async function generateTicketNumber() {
+  const currentDate = new Date();
+  const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // Ensure 2 digits
+  const year = currentDate.getFullYear();
+
+  // Get the latest ticket for the current month and year
+  const latestTicket = await prisma.letterTicket.findFirst({
+    where: {
+      ticketNumber: {
+        startsWith: `T-${month}-${year}`,
+      },
+    },
+    
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  // Extract last incrementing number
+  let nextNumber = 1;
+  if (latestTicket) {
+    const parts = latestTicket.ticketNumber.split("-");
+    nextNumber = parseInt(parts[3], 10) + 1; // Increment last number
+  }
+
+  // Format the ticket number
+  const ticketNumber = `T-${month}-${year}-${String(nextNumber).padStart(3, "0")}`;
+
+  return ticketNumber;
 }

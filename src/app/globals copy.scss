@@ -3,6 +3,11 @@
 @use "@carbon/react/scss/spacing" as spacing;
 @use "@carbon/react/scss/type" as types;
 @use "@carbon/react/scss/theme" as themes;
+// @use '@/components/TutorialHeader/tutorial-header';
+// @use '@/components/Info/info';
+
+// @use '@/app/home/landing-page';
+// @use '@/app/repos/repo-page';
 
 /// Remove overrides once Carbon bugs are fixed upstream.
 /// Need grid option to not add page gutters at large viewports, to also use when nesting grids
@@ -35,10 +40,17 @@ html {
   background-color: themes.$layer-02;
 }
  
+// Override Carbon's primary button color
+.bx--btn--custom-green {
+  background-color: #99cc00 !important; // Carbon Green
+  color: #fff !important;
+  border: 1px solid #1e8c3f !important;
 
+  &:hover {
+    background-color: #198038 !important; // Darker green on hover
+  }
 
-.cds--btn--success {
-  background-color: #24a148 !important;
-  border-color: #24a148 !important;
-  color: #ffffff !important;
+  &:focus {
+    outline: 2px solid #42be65 !important; // Lighter green focus ring
+  }
 }

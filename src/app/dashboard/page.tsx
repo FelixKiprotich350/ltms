@@ -12,7 +12,6 @@ import {
   IconButton,
   Tile,
 } from "@carbon/react";
-import { PackagingUnit, Product } from "@prisma/client";
 import { Edit, Money, ShoppingCart, Box, User } from "@carbon/icons-react";
 import { useNotification } from "app/layoutComponents/notificationProvider";
 
@@ -35,7 +34,9 @@ interface DashboardStatistics {
 
 export default function Dashboard() {
   const { addNotification } = useNotification();
-  const [dashboardData, setDashboardData] = useState<DashboardStatistics>({
+  const [dashboardData, setDashboardData] = useState<
+    DashboardStatistics | [] | any
+  >({
     topSellingProducts: [],
     totalProducts: 0,
     totalSales: 0,
@@ -49,7 +50,7 @@ export default function Dashboard() {
       try {
         const response = await fetch("/api/dashboard");
         const data = await response.json();
-        setDashboardData(data);
+        setDashboardData([]);
       } catch (error) {
         addNotification({
           title: "Error",
@@ -83,7 +84,7 @@ export default function Dashboard() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {dashboardData.topSellingProducts.map((item) => (
+              {dashboardData.topSellingProducts?.map((item: any) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.name}</TableCell>
                   <TableCell>{item.basicUnitUuid}</TableCell>
@@ -113,7 +114,7 @@ export default function Dashboard() {
             <Money size={32} />
             <div>
               <h4>Total Sales</h4>
-              <strong>Ksh {dashboardData.totalSales.toFixed(2)}</strong>
+              <strong>Ksh {dashboardData.totalSales?.toFixed(2)}</strong>
             </div>
           </Tile>
 

@@ -1,7 +1,7 @@
 // app/api/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient, TrtUser } from "@prisma/client";
+import { PrismaClient, LtmsUser } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
@@ -76,7 +76,7 @@ type LoginCredentials = {
 export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json();
-    const user = await prisma.trtUser.findFirst({
+    const user = await prisma.ltmsUser.findFirst({
       where: { email: email },
     });
 
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
 
     // Generate JWT token
     const token = jwt.sign({ id: user.uuid, email: user.email }, SECRET_KEY, {
-      expiresIn: "5m",
+      expiresIn: "15m",
     });
 
     // Set token in HTTP-only cookie

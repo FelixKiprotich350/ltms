@@ -216,6 +216,7 @@ export default function LoginComponent() {
 
                 {/* Submit Button */}
                 <Button
+                kind="primary"
                   type="submit"
                   disabled={isLoading}
                   renderIcon={isLoading ? Loading : undefined} // Show a loading spinner when isLoading

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken"; // Install with `npm install jsonwebtoken`
 import { USER_TOKEN } from "lib/constants";
+import prisma from "lib/prisma";
 
 const SECRET = process.env.JWT_SECRET!; // Ensure you have this in your .env file
 
@@ -19,12 +20,12 @@ export async function GET() {
 
     // Verify the JWT token
     const decoded = jwt.verify(token, SECRET);
-    const user = await prisma?.trtUser.findFirst({
+    const user = await prisma?.ltmsUser.findFirst({
       where: {
         uuid: (decoded as object as any)?.id,
       },
       include: {
-        Role: true,
+        // Role: true,
         Person: true,
       },
     });
@@ -33,7 +34,7 @@ export async function GET() {
       { status: 200 }
     );
   } catch (error) {
-    console.error("JWT Verification Error:", error);
+    console.error("JWT Verification Error:--unauthorized");
     return NextResponse.json(
       { authenticated: false, user: null },
       { status: 401 }

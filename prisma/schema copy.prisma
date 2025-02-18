@@ -18,7 +18,7 @@ model ClientConfiguration {
 }
 
 model Person {
-  uuid        String     @id @default(uuid()) // UUID as a unique field
+  uuid        String     @unique @default(uuid()) // UUID as a unique field
   firstName   String
   lastName    String
   email       String     @unique
@@ -121,22 +121,19 @@ model Letter {
   LetterRecipients     LetterRecipients[]      @relation(name: "LetterstoRecipients")
   createdAt            DateTime                @default(now())
   updatedAt            DateTime                @updatedAt
-
-  LetterTicket LetterTicket[] @relation(name: "LetterTicket")
 }
 
 model LetterCategory {
-  uuid        String   @id @default(uuid()) // UUID as a unique field
+  uuid        String   @unique @default(uuid()) // UUID as a unique field
   name        String
   description String?
-  isretired   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   Letter      Letter[]
 }
 
 model RecipientsMaster {
-  uuid                String                  @id @default(uuid()) // UUID as a unique field
+  uuid                String                  @unique @default(uuid()) // UUID as a unique field
   recipientType       String
   recipientUuid       String
   createdAt           DateTime                @default(now())
@@ -147,24 +144,14 @@ model RecipientsMaster {
 }
 
 model LetterRecipients {
-  uuid          String           @id @default(uuid()) // UUID as a unique field
+  uuid          String           @unique @default(uuid()) // UUID as a unique field
   letterUuid    String
   recipientUuid String
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
-  Letter        Letter           @relation(name: "LetterstoRecipients", fields: [letterUuid], references: [uuid])
+  // Letter        Letter           @relation(name: "LetterstoRecipients", fields: [letterUuid], references: [uuid])
   Recipient     RecipientsMaster @relation(fields: [recipientUuid], references: [uuid])
-
-  @@unique([letterUuid, recipientUuid]) // Composite primary key
-}
-
-model LetterTicket {
-  uuid         String   @id @default(uuid()) // UUID as a unique field
-  letterUuid   String
-  ticketNumber String   @unique
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  Letter       Letter   @relation(name: "LetterTicket", fields: [letterUuid], references: [uuid])
+  Letter        Letter           @relation(name: "LetterstoRecipients", fields: [letterUuid], references: [uuid])
 }
 
 model UserGroup {
