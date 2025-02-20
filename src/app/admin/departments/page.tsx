@@ -20,7 +20,7 @@ import { SelectItem } from "@carbon/react";
 interface Department {
   uuid: string;
   name: string;
-  activeStatus: string;
+  activeStatus: boolean;
   description: string;
 }
 
@@ -34,7 +34,7 @@ export default function ProductCategories() {
   const [newCategory, setNewCategory] = useState({
     name: "",
     description: "",
-    activeStatus: "",
+    activeStatus: false,
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -95,7 +95,7 @@ export default function ProductCategories() {
           setNewCategory({
             name: "",
             description: "",
-            activeStatus: "",
+            activeStatus: false,
           });
           setIsModalOpen(false);
         } else {
@@ -138,7 +138,7 @@ export default function ProductCategories() {
           setNewCategory({
             name: "",
             description: "",
-            activeStatus: "",
+            activeStatus: false,
           });
           setIsModalOpen(false);
         } else {
@@ -193,7 +193,7 @@ export default function ProductCategories() {
             <TableHead>
               <TableRow>
                 <TableHeader>Name</TableHeader>
-                <TableHeader>Status</TableHeader>
+                <TableHeader>Organizational Status</TableHeader>
                 <TableHeader>Description</TableHeader>
                 <TableHeader>Actions</TableHeader>
               </TableRow>

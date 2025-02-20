@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { PrismaClient, Product } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
-import { v4 as uuidv4 } from "uuid";
 
 const prisma = new PrismaClient();
 
@@ -22,40 +21,16 @@ export async function GET(
       { status: 400 }
     );
   }
-  const user = await prisma.trtUser.findFirst({
+  const user = await prisma.ltmsUser.findFirst({
     where: {
       uuid: uuid,
     },
     include: {
       Person: true,
-      Role: true,
+      UserRole: true,
     },
   });
 
   return NextResponse.json(user);
 }
-
-export async function DELETE(
-  req: Request,
-  { params }: { params: { group: string } }
-) {
-  const { group } = params;
-  try {
-    const { count } = await prisma.basketSale.deleteMany({
-      where: {
-        groupCode: group,
-      },
-    });
-
-    // Return the created sale
-    return NextResponse.json({ status: 200 });
-  } catch (error) {
-    console.error("Error creating sale:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
-  } finally {
-    await prisma.$disconnect();
-  }
-}
+ 

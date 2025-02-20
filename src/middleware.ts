@@ -1,48 +1,43 @@
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
-import { verifyAuth } from "lib/auth"; // Make sure this handles token verification properly
-
-const SECRET_KEY = process.env.JWT_SECRET!; // Store in .env
+import { getToken } from "next-auth/jwt";
 
 export async function middleware(req: NextRequest) {
   try {
-    // Validate the user is authenticated
-    const verifiedToken = await verifyAuth(req);
+    // Extract session token from the request
+    const session = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
-    // If the token is not verified, respond accordingly
-    if (!verifiedToken) {
-      // If it's an API request, return a 401 Unauthorized response
+    // If there is no session, redirect or return unauthorized response
+    if (!session) {
       if (req.nextUrl.pathname.startsWith("/api/")) {
         return new NextResponse(
           JSON.stringify({ error: { message: "Authentication required" } }),
-          { status: 401 }
+          { status: 401, headers: { "Content-Type": "application/json" } }
         );
       }
-
-      // Otherwise, redirect to the login page
+      
+      console.log("Redirecting to login page...");
       return NextResponse.redirect(new URL("/signing", req.url));
     }
 
-    // If token is valid, continue the request
+    // User is authenticated, continue request
     return NextResponse.next();
-  } catch (error: any) {
-    console.error("Authentication error:", error.message); // No need for optional chaining here
+  } catch (error) {
+    console.error("Authentication error:", error);
 
-    // Handle errors, perhaps from `verifyAuth`
     if (req.nextUrl.pathname.startsWith("/api/")) {
       return new NextResponse(
         JSON.stringify({ error: { message: "Authentication error" } }),
-        { status: 500 }
+        { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
-    console.log("redirecting to loginpage");
-    // Redirect for non-API requests on errors
+
     return NextResponse.redirect(new URL("/signing", req.url));
   }
 }
 
+// Apply middleware only to protected routes
 export const config = {
-  runtime: "nodejs", // Ensures Node.js runtime for this middleware
   matcher: [
     "/dashboard",
     "/pos/:path*",
@@ -50,5 +45,5 @@ export const config = {
     "/reports/:path*",
     "/users/:path*",
     "/inventory/:path*",
-  ], // Match all routes except static files
+  ],
 };

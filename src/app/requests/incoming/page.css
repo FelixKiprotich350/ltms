@@ -1,0 +1,12 @@
+.custom-text-input input {
+    border-radius: 16px;
+    outline: none !important; /* Remove default focus outline */
+    box-shadow: none !important; /* Remove Carbon's blue focus ring */
+    border: 1px solid #ccc; /* Optional: Adjust border */
+  }
+  
+  .custom-text-input input:focus {
+    border: 1px solid #888; /* Optional: Custom border on focus */
+    box-shadow: none !important;
+  }
+  

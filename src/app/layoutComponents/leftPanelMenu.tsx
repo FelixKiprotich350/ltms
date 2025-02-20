@@ -16,78 +16,137 @@ import {
   SideNavLink,
 } from "@carbon/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface LeftPanelMenuProps {
-  children: ReactNode; // Defines that the `children` prop can accept any valid React node
+  isSideNavExpanded: boolean; // Defines that the `children` prop can accept any valid React node
+  currentUser: any | null;
 }
 
-const LeftPanelMenu: React.FC<LeftPanelMenuProps> = ({  }) => {
-  const [isSideNavExpanded, setIsSideNavExpanded] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
-  const router = useRouter();
-  const toggleSideNav = () => {
-    setIsSideNavExpanded((prev) => !prev);
-  };
-
-  // Fetch user details if the user is authenticated
-  const fetchUserDetails = async () => {
-    try {
-      const response = await fetch("/api/token"); // API endpoint to get user details
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data); // Store user details in state
-      } else {
-        setUser(null); // Reset user state if not authenticated
-      }
-    } catch (error) {
-      setError("Failed to fetch user details");
-    }
-  };
-
-  
-
-  // Fetch user details when the component mounts (or when logged-in state changes)
-  useEffect(() => {
-    fetchUserDetails(); // Fetch user details
-  }, []);
-  
-
+const LeftPanelMenu: React.FC<LeftPanelMenuProps> = ({
+  isSideNavExpanded,
+  currentUser,
+}) => {
   return (
-    <div>
-      <Theme theme="g10">
-        {user && (
-          <SideNav
-            isFixedNav={true}
-            // defaultExpanded={false}
-            expanded={isSideNavExpanded}
-            // isChildOfHeader={true}
-            aria-label="Side navigation"
-          >
-            <SideNavItems>
-              <SideNavLink href="/dashboard">Dashboard</SideNavLink>
-              <SideNavMenu title="Data Sources">
-                <SideNavMenuItem href="/sources/dataentry">
-                  Data Entry
-                </SideNavMenuItem>
-                <SideNavMenuItem href="/sources/csv">CSV</SideNavMenuItem>
-                <SideNavMenuItem href="/sources/database">
-                  Database
-                </SideNavMenuItem>
-                <SideNavMenuItem href="/sources/api">
-                  API Endpoint
-                </SideNavMenuItem>
-              </SideNavMenu>{" "}
-              <SideNavLink href="/datafetch">Data Fetch</SideNavLink>
-              <SideNavLink href="/configurations">Configurations</SideNavLink>
-              <SideNavLink href="/mappings">Mappings</SideNavLink>
-              <SideNavLink href="/reports">Reports</SideNavLink>
-              <SideNavLink href="/myprojects">My Projects</SideNavLink>
-            </SideNavItems>
-          </SideNav>
-        )}
-      </Theme>
-    </div>
+    <SideNav
+      isFixedNav={true}
+      // defaultExpanded={false}
+      expanded={isSideNavExpanded}
+      // isChildOfHeader={true}
+      aria-label="Side navigation"
+    >
+      <SideNavItems>
+        <Link href="/dashboard" passHref legacyBehavior>
+          <SideNavLink>Dashboard </SideNavLink>
+        </Link>
+        {/* {user.Role?.name == "Cashier" ||
+          (user.Role?.name == "Admin" && (
+          
+          ))} */}
+        <SideNavMenu title="Requests">
+          <Link href="/requests/new" passHref legacyBehavior>
+            <SideNavMenuItem>New Request</SideNavMenuItem>
+          </Link>
+          <Link href="/requests/incoming" passHref legacyBehavior>
+            <SideNavMenuItem>Incoming Requests</SideNavMenuItem>
+          </Link>
+          <Link href="/requests/outgoing" passHref legacyBehavior>
+            <SideNavMenuItem>Outgoing Requests</SideNavMenuItem>
+          </Link>
+          <Link href="/requests/drafts" passHref legacyBehavior>
+            <SideNavMenuItem>Draft Letters</SideNavMenuItem>
+          </Link>
+        </SideNavMenu>
+        <SideNavMenu title="Tickets">
+          <Link href="/tickets/new" passHref legacyBehavior>
+            <SideNavMenuItem>New Tickets</SideNavMenuItem>
+          </Link>
+          <Link href="/tickets/inprocess" passHref legacyBehavior>
+            <SideNavMenuItem>In-Process</SideNavMenuItem>
+          </Link>
+          <Link href="/tickets/caseclosed" passHref legacyBehavior>
+            <SideNavMenuItem>Case Closed</SideNavMenuItem>
+          </Link>
+          <Link href="/tickets/others" passHref legacyBehavior>
+            <SideNavMenuItem>others</SideNavMenuItem>
+          </Link>
+        </SideNavMenu>
+        <SideNavMenu title="Monitoring">
+          <Link href="/monitoring/open" passHref legacyBehavior>
+            <SideNavMenuItem>Open Tickets</SideNavMenuItem>
+          </Link>
+          <Link href="/monitoring/closed" passHref legacyBehavior>
+            <SideNavMenuItem>Closed Tickets</SideNavMenuItem>
+          </Link>
+        </SideNavMenu>
+        <SideNavMenu title="Recipients">
+          <Link href="/recipients/master" passHref legacyBehavior>
+            <SideNavMenuItem>Master Recipients</SideNavMenuItem>
+          </Link>
+          <Link href="/recipients/departments" passHref legacyBehavior>
+            <SideNavMenuItem>Departments</SideNavMenuItem>
+          </Link>
+          <Link href="/recipients/departmentpersons" passHref legacyBehavior>
+            <SideNavMenuItem>Department Persons</SideNavMenuItem>
+          </Link>
+        </SideNavMenu>
+        <SideNavMenu title="Administration">
+          <Link href="/admin/departments" passHref legacyBehavior>
+            <SideNavMenuItem>Departments</SideNavMenuItem>
+          </Link>
+          <Link href="/admin/roles" passHref legacyBehavior>
+            <SideNavMenuItem>Departments Roles</SideNavMenuItem>
+          </Link>
+          <Link href="/admin/lettercategory" passHref legacyBehavior>
+            <SideNavMenuItem>Letter Category</SideNavMenuItem>
+          </Link>
+        </SideNavMenu>
+        <SideNavMenu title="Notifications">
+          <Link href="/inventory/allproducts" passHref legacyBehavior>
+            <SideNavMenuItem>Products List</SideNavMenuItem>
+          </Link>
+          <Link href="/inventory/receive" passHref legacyBehavior>
+            <SideNavMenuItem>Receive Stock</SideNavMenuItem>
+          </Link>
+          <Link href="/inventory/packunits" passHref legacyBehavior>
+            <SideNavMenuItem>Packaging Units</SideNavMenuItem>
+          </Link>
+          <Link href="/inventory/categories" passHref legacyBehavior>
+            <SideNavMenuItem>Categories</SideNavMenuItem>
+          </Link>
+        </SideNavMenu>
+
+        {/* {user.Role?.name == "Admin" && (
+         
+        )} */}
+        <SideNavMenu title="User Management">
+          <Link href="/users" passHref legacyBehavior>
+            <SideNavMenuItem>Users List</SideNavMenuItem>
+          </Link>
+          <Link href="/users/roles" passHref legacyBehavior>
+            <SideNavMenuItem>User Roles</SideNavMenuItem>
+          </Link>
+        </SideNavMenu>
+        {/* {user.Role?.name == "Admin" && (
+          
+        )} */}
+        <SideNavMenu title="Reports">
+          <Link href="/reports/sales" legacyBehavior>
+            <SideNavMenuItem>Sales Reports</SideNavMenuItem>
+          </Link>
+          <Link href="/reports/products" legacyBehavior>
+            <SideNavMenuItem>Product Reports</SideNavMenuItem>
+          </Link>
+          <Link href="/reports/payments" legacyBehavior>
+            <SideNavMenuItem>Payment Reports</SideNavMenuItem>
+          </Link>
+          {/* <Link href="/reports/users" legacyBehavior>
+            <SideNavMenuItem>User Reports</SideNavMenuItem>
+          </Link> */}
+        </SideNavMenu>
+        {/* <SideNavLink href="/datafetch"></SideNavLink> */}
+      </SideNavItems>
+    </SideNav>
   );
 };
 

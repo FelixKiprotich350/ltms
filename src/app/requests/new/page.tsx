@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, CSSProperties } from "react";
 import {
   Button,
   TextInput,
@@ -9,52 +9,86 @@ import {
   TextArea,
   MultiSelect,
 } from "@carbon/react";
+import { OrganisationDepartment, RecipientsMaster } from "@prisma/client";
 
-export interface Department {
+export interface RecipientDepartmentModel {
   uuid: string;
-  name: string;
+  recipientType: string;
+  isActive: Boolean;
+  departmentUuid: string;
+  DepartmentRecipient: OrganisationDepartment;
 }
-export interface Catergory {
+export interface LetterCategory {
   uuid: string;
   name: string;
+  isretired: boolean;
 }
 type FormData = {
-  requestTitle: string;
-  description: string;
+  subject: string;
+  letterbody: string;
   categoryUuid: string;
   recipientDepartments: string[]; // Or another appropriate type
-  recipientPerson: string;
   attachments: File[];
+  externalReference: string;
+  confidentiality: string;
   error: string;
-  priority: string;
 };
 export default function InitialSetup() {
   const [formData, setFormData] = useState<FormData>({
-    requestTitle: "",
-    description: "",
+    subject: "",
+    letterbody: "",
     categoryUuid: "",
     recipientDepartments: [], // Store multiple selected departments
-    recipientPerson: "",
     attachments: [],
+    externalReference: "",
+    confidentiality: "",
     error: "",
-    priority: "",
   });
 
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [categories, setCategories] = useState<Catergory[]>([]);
+  const [departments, setDepartments] = useState<RecipientDepartmentModel[]>(
+    []
+  );
+  const [categories, setCategories] = useState<LetterCategory[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
+  const fetchRecipients = async () => {
+    setIsLoading(true);
+    try {
+      const url = new URL("/api/recipients/master", window.location.origin);
+      url.searchParams.append("withrelations", "true");
+
+      const response = await fetch(url.toString());
+      if (response.ok) {
+        const data = await response.json();
+        setDepartments(
+          (data as Array<RecipientDepartmentModel>).filter(
+            (item) =>
+              item.recipientType == "Department" && item.isActive == true
+          )
+        );
+      } else {
+        console.error("Failed to fetch recipients");
+      }
+    } catch (error) {
+      console.error("Error fetching recipients:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   useEffect(() => {
     // Fetch Categories
-    fetch("/api/requests/categories")
+    fetch("/api/admin/lettercategories")
       .then((res) => res.json())
-      .then((data) => setCategories(data))
+      .then((data) =>
+        setCategories(
+          (data as Array<LetterCategory>).filter(
+            (category) => category.isretired == false
+          )
+        )
+      )
       .catch((err) => console.error("Error fetching categories:", err));
 
-    // Fetch Departments
-    fetch("/api/recipients/departments")
-      .then((res) => res.json())
-      .then((data) => setDepartments(data))
-      .catch((err) => console.error("Error fetching departments:", err));
+    fetchRecipients();
   }, []);
 
   const handleInputChange = (
@@ -113,9 +147,45 @@ export default function InitialSetup() {
     alert("Request saved as draft.");
   };
 
-  const handleSubmit = () => {
-    console.log("Form Submitted:", formData);
-    alert("Request sent successfully!");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const formDataToSend = new FormData();
+    formDataToSend.append("subject", formData.subject);
+    formDataToSend.append("letterbody", formData.letterbody);
+    formDataToSend.append("categoryUuid", formData.categoryUuid);
+    formDataToSend.append("confidentiality", formData.confidentiality);
+    formDataToSend.append("externalReference", formData.externalReference);
+    // Append multiple selected departments
+    formData.recipientDepartments.forEach((dept) => {
+      formDataToSend.append("recipientDepartments", dept);
+    });
+    
+
+    // Append attachments
+    formData.attachments.forEach((file) => {
+      formDataToSend.append("attachments[]", file);
+    });
+
+    try {
+      const response = await fetch("/api/letterrequests/new", {
+        method: "POST",
+        body: formDataToSend,
+        headers: {
+          // 'Content-Type': 'multipart/form-data' is NOT needed; the browser sets it automatically
+          Authorization: `Bearer YOUR_ACCESS_TOKEN`, // If authentication is required
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to submit request");
+      }
+
+      const result = await response.json();
+      console.log("Success:", result);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
   };
 
   return (
@@ -125,26 +195,26 @@ export default function InitialSetup() {
         <div style={styles.formContainer}>
           <div style={styles.leftColumn}>
             <TextInput
-              id="requestTitle"
-              name="requestTitle"
-              labelText="Request Title"
-              value={formData.requestTitle}
+              id="subject"
+              name="subject"
+              labelText="Request Subject"
+              value={formData.subject}
               onChange={handleInputChange}
               style={{ marginBottom: "1rem" }}
             />
             <TextInput
-              id="requestExternalReference"
-              name="requestExternalReference"
+              id="externalReference"
+              name="externalReference"
               labelText="External Reference"
-              value={formData.requestTitle}
+              value={formData.externalReference}
               onChange={handleInputChange}
               style={{ marginBottom: "1rem" }}
             />
             <TextArea
-              id="description"
-              name="description"
-              labelText="Subject/Body/Description"
-              value={formData.description}
+              id="letterbody"
+              name="letterbody"
+              labelText="Body/Description"
+              value={formData.letterbody}
               onChange={handleInputChange}
               style={styles.textArea}
             />
@@ -152,17 +222,24 @@ export default function InitialSetup() {
 
           <div style={styles.rightColumn}>
             <Select
-              id="priority"
-              name="priority"
-              labelText="Letter Priority"
-              value={formData.priority}
+              id="confidentiality"
+              name="confidentiality"
+              labelText="Letter Confidentiality"
+              value={formData.confidentiality}
               onChange={handleInputChange}
               style={{ marginBottom: "1rem" }}
             >
-              <SelectItem text="Select a Priority" value="" key="default" />
-              <SelectItem text="Low" value="Low" key="low" />
-              <SelectItem text="Medium" value="Medium" key="medium" />
-              <SelectItem text="High" value="High" key="high" />
+              <SelectItem
+                text="Select a Confidentiality"
+                value=""
+                key="default"
+              />
+              <SelectItem text="Standard" value="standard" key="standard" />
+              <SelectItem
+                text="Confidential"
+                value="confidential"
+                key="confidential"
+              />
             </Select>
             <Select
               id="categoryUuid"
@@ -188,14 +265,17 @@ export default function InitialSetup() {
               titleText="Recipient Departments"
               items={departments.map((dept) => ({
                 id: dept.uuid,
-                label: dept.name,
+                label: dept.DepartmentRecipient?.name,
               }))}
               itemToString={(item: any) => item.label}
               selectedItems={departments
                 .filter((dept) =>
                   formData.recipientDepartments.includes(dept.uuid)
                 )
-                .map((dept) => ({ id: dept.uuid, label: dept.name }))}
+                .map((dept) => ({
+                  id: dept.uuid,
+                  label: dept.DepartmentRecipient?.name,
+                }))}
               onChange={(event: any) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -215,12 +295,12 @@ export default function InitialSetup() {
                   marginBottom: "0.5rem",
                 }}
               >
-                Attach Files (PDF or DOCX)
+                Attachments (PDF)
               </label>
               <input
                 type="file"
                 id="fileUpload"
-                accept=".pdf, .docx"
+                accept=".pdf" //".pdf, .docx"
                 multiple
                 onChange={handleFileUpload}
               />
@@ -274,17 +354,18 @@ export default function InitialSetup() {
   );
 }
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
   container: {
     display: "flex",
-    FlexDirection: "column",
+    flexDirection: "column",
     maxWidth: "98%",
     margin: "4px",
   },
   formContainer: {
     display: "flex",
     gap: "2rem",
-    FlexWrap: "wrap",
+    flexWrap: "wrap",
+    width: "100%", // Added width 100%
   },
   leftColumn: {
     flex: 1,
@@ -303,7 +384,7 @@ const styles = {
   },
   fileListContainer: {
     maxHeight: "150px",
-    OverflowY: "auto",
+    overflowY: "auto",
     border: "1px solid #ddd",
     padding: "0.5rem",
     borderRadius: "5px",

@@ -14,6 +14,8 @@ import {
   TabPanel,
 } from "@carbon/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
+import router from "next/router";
 
 export default function LoginComponent() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -33,7 +35,6 @@ export default function LoginComponent() {
     }
   }, [searchParams]);
 
-
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -41,31 +42,15 @@ export default function LoginComponent() {
       setError("Both email and password are required.");
       return;
     }
-
-    setError(null); // Clear errors
-    setIsLoading(true);
-
-    try {
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-      if (response.ok) {
-        // Redirect after login success
-        window.location.href = "/dashboard";
-
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || "Invalid email or password.");
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      setError("An unexpected error occurred. Please try again.");
-    } finally {
-      setIsLoading(false);
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: true,
+      callbackUrl: "/dashboard",
+    });
+    console.log(result);
+    if (result?.ok) {
+      router.push("/dashboard"); // Manually redirect after login
     }
   };
 
@@ -216,7 +201,7 @@ export default function LoginComponent() {
 
                 {/* Submit Button */}
                 <Button
-                kind="primary"
+                  kind="primary"
                   type="submit"
                   disabled={isLoading}
                   renderIcon={isLoading ? Loading : undefined} // Show a loading spinner when isLoading

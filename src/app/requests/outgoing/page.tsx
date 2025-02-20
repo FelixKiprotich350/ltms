@@ -16,28 +16,30 @@ import {
   Select,
 } from "@carbon/react";
 import { SelectItem } from "@carbon/react";
+import {  LtmsUser, OrganisationDepartment } from "@prisma/client";
 
-interface Department {
+interface LetterRequestModel {
   uuid: string;
-  name: string;
-  activeStatus: boolean;
-  description: string;
+  externalReference: string | null;
+  subject: string;
+  body: string;
+  confidentiality: string;
+  letterCategoryUuid: string;
+  senderUserUuid: string;
+  senderDepartmentUuid: string;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+  SenderDepartment: OrganisationDepartment;
+  SenderUser: LtmsUser;
 }
-interface RecipientModel {
-  uuid: string;
-  departmentUuid: string;
-  userPersonUuid?: string;
-  name: string;
-  recipientType: string;
-  isActive: boolean;
-  description: string;
-}
-export default function ProductCategories() {
-  const [recipients, setRecipients] = useState<RecipientModel[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
+
+export default function OutgoingLetterRequests() {
+  const [letters, setLetters] = useState<LetterRequestModel[]>([]);
+  const [departments, setDepartments] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingDepartment, setEditingDepartment] = useState<Department | null>(
+  const [editingDepartment, setEditingDepartment] = useState<any | null>(
     null
   );
   const [newCategory, setNewCategory] = useState({
@@ -46,15 +48,15 @@ export default function ProductCategories() {
     activeStatus: false,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const fetchRecipients = async () => {
+  const fetchRequests = async () => {
     try {
-      const url = new URL("/api/recipients/master", window.location.origin);
+      const url = new URL("/api/letterrequests/all", window.location.origin);
       url.searchParams.append("withrelations", "true"); // Add the parameter
 
       const response = await fetch(url.toString());
       if (response.ok) {
         const data = await response.json();
-        setRecipients(data);
+        setLetters(data);
       } else {
         console.error("Failed to fetch recipients");
       }
@@ -68,32 +70,32 @@ export default function ProductCategories() {
     const fetchDepartments = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch("/api/recipients/departments");
+        const response = await fetch("/api/letterrequests/all");
         if (response.ok) {
           const data = await response.json();
           setDepartments(data);
         } else {
-          console.error("Failed to fetch departments");
+          console.error("Failed to fetch requests");
         }
       } catch (error) {
-        console.error("Error fetching departments:", error);
+        console.error("Error fetching requests:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchDepartments();
-    fetchRecipients();
+    fetchRequests();
   }, []);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredDepartments = departments.filter(
+  const filteredRequests = letters.filter(
     (department) =>
-      department.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      department.description.toLowerCase().includes(searchTerm.toLowerCase())
+      department.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      department.body.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleAddDepartment = async () => {
@@ -133,7 +135,7 @@ export default function ProductCategories() {
     }
   };
 
-  const handleEditCategory = (category: Department) => {
+  const handleEditCategory = (category: any) => {
     setEditingDepartment(category);
     setIsModalOpen(true);
     setNewCategory(category);
@@ -176,51 +178,12 @@ export default function ProductCategories() {
     }
   };
 
-  const handleCheckBoxChange = async (departmentItem: Department) => {
-    try {
-      const editingRecipient = recipients.find(
-        (item) => item.departmentUuid == departmentItem.uuid
-      );
-      const isRecipient = editingRecipient ? true : false;
-      const editurl = editingRecipient
-        ? `/api/recipients/master/${editingRecipient.uuid}`
-        : "/api/recipients/master";
-
-      const response = await fetch(editurl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userPersonUuid: null,
-          departmentUuid: departmentItem.uuid,
-          recipientType: "Department",
-          isActive: true,
-        }),
-      });
-
-      if (response.ok) {
-        const updatedRecipients = await fetch("/api/recipients/master");
-        if (updatedRecipients.ok) {
-          const data = await updatedRecipients.json();
-          setRecipients(
-            data.filter(
-              (item: RecipientModel) => item.recipientType == "Department"
-            )
-          );
-        }
-      } else {
-        console.error("Failed to update recipient");
-      }
-    } catch (error) {
-      console.error("Error updating recipient:", error);
-    }
-  };
-
   return (
     <div>
-      <h3>Organisational Departments</h3>
+      <h3>Outgoing Letter Requests</h3>
       <TextInput
-        id="search-departments"
-        labelText="Search departments"
+        id="search-letters"
+        labelText="Search Requests"
         placeholder="Search by Name or Description"
         value={searchTerm}
         onChange={handleSearchChange}
@@ -228,59 +191,38 @@ export default function ProductCategories() {
       />
 
       {isLoading ? (
-        <InlineLoading description="Loading Departments..." />
+        <InlineLoading description="Loading Requests..." />
       ) : (
-        <TableContainer title="All Departments">
+        <TableContainer>
           <Table>
             <TableHead>
               <TableRow>
-                <TableHeader>Name</TableHeader>
-                <TableHeader>Organizational Status</TableHeader>
-                <TableHeader>Description</TableHeader>
+                <TableHeader>Subject</TableHeader>
+                <TableHeader>Sender</TableHeader>
+                <TableHeader>Status</TableHeader>
+                <TableHeader>Date</TableHeader>
                 <TableHeader>Action</TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredDepartments.map((department) => {
-                const Recipient = recipients.find(
-                  (r) => r.departmentUuid == department.uuid
-                );
-                let isRecipient = false;
-                if (Recipient) {
-                  if (Recipient.isActive == true) {
-                    isRecipient = true;
-                  } else {
-                    isRecipient = false;
-                  }
-                }
+              {filteredRequests.map((item) => {
                 return (
-                  <TableRow key={department.uuid}>
-                    <TableCell>{department.name}</TableCell>
+                  <TableRow key={item.uuid}>
+                    <TableCell>{item.subject}</TableCell>
+                    <TableCell>{item.SenderDepartment?.name}</TableCell>
                     <TableCell>
-                      {department.activeStatus ? (
-                        <label style={{ color: "green" }}>Active</label>
-                      ) : (
-                        <label style={{ color: "darkred" }}>Inactive</label>
-                      )}
-                    </TableCell>
-                    <TableCell>{department.description}</TableCell>
-                    <TableCell>
-                      
-                      {recipients.find(
-                        (item) => item.departmentUuid === department.uuid
-                      )?.isActive ? (
-                        <label style={{ color: "darkblue"}}>Enabled</label>
-                      ) : (
-                        <Button
-                          id={`checkbox-${department.uuid}`}
-                          kind="tertiary"
-                          size="sm"
-                          onClick={() => handleCheckBoxChange(department)}
+                      {item.status == "PENDING" ? (
+                        <label
+                          style={{ color: "darkred", fontStyle: "italic" }}
                         >
-                          Enable
-                        </Button>
+                          {"Pending"}
+                        </label>
+                      ) : (
+                        <label style={{ color: "green" }}>Received</label>
                       )}
                     </TableCell>
+                    <TableCell>{item.createdAt}</TableCell>
+                    <TableCell>{"More"}</TableCell>
                   </TableRow>
                 );
               })}

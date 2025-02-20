@@ -1,8 +1,7 @@
 import "./globals.scss";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import ContentProviders from "./contentProvider";
-// import { AuthProvider } from "./AuthContext";
+import LtmsApp from "./app";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,9 +18,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        {/* <AuthProvider> */}
-        <ContentProviders>{children}</ContentProviders>
-        {/* </AuthProvider> */}
+        <LtmsApp>{children}</LtmsApp>
       </body>
     </html>
   );

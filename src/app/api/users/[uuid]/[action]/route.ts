@@ -20,12 +20,12 @@ export async function POST(
     let updatedUser;
 
     if (action === "approve") {
-      updatedUser = await prisma.trtUser.update({
+      updatedUser = await prisma.ltmsUser.update({
         where: { uuid },
         data: { approvalStatus: "APPROVED" },
       });
     } else if (action === "disable") {
-      updatedUser = await prisma.trtUser.update({
+      updatedUser = await prisma.ltmsUser.update({
         where: { uuid },
         data: { loginStatus: "DISABLED" },
       });
@@ -43,8 +43,7 @@ export async function POST(
       { error: "Failed to update user status" },
       { status: 500 }
     );
-  }
-  finally{
+  } finally {
     prisma.$disconnect();
   }
 }

@@ -4,22 +4,30 @@ import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-// GET: Fetch all packaging units
+// GET: Fetch all recipients
 export async function GET(request: Request) {
   try {
     // Get the query parameters from the request
     const url = new URL(request.url);
-    const includeProducts = url.searchParams.get("includeproducts") === "true"; // Check if includeProducts is true
+    const withRelations = url.searchParams.get("withrelations") === "true"; // Convert to boolean
 
-    // Conditionally include Products based on the query parameter
-    const units = await prisma.packagingUnit.findMany({
+    // Conditionally include
+    const recipients = await prisma.recipientsMaster.findMany({
+      include: withRelations
+        ? {
+            DepartmentRecipient: true,
+            UserPersonRecipient: {
+              include: {
+                Person: true, // Fetch the related Person entity
+                UserRole:true,
+              },
+            },
+          }
+        : {}, // Conditional inclusion
       orderBy: { createdAt: "desc" },
-      include: includeProducts
-        ? { Products: true } // Include Products if true
-        : {}, // Don't include Products if false
     });
 
-    return NextResponse.json(units);
+    return NextResponse.json(recipients);
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json({ error: "Internal server error" });
@@ -27,23 +35,53 @@ export async function GET(request: Request) {
     prisma.$disconnect();
   }
 }
-
+function getrecipienttype(rectype: string) {
+  if (rectype == "all") {
+    return "";
+  }
+  if (rectype == "department") {
+    return "department";
+  }
+  if (rectype == "person") {
+    return "person";
+  }
+}
 export async function POST(req: Request) {
   try {
     const body = await req.json(); // Parse the JSON body explicitly
-    const { name, countable } = body;
-    if (!name || name.trim() === "") {
-      return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    const { userPersonUuid, isActive, recipientType, departmentUuid } = body;
+
+    if (!recipientType || recipientType.trim() === "") {
+      return NextResponse.json(
+        { error: "recipientType is required" },
+        { status: 400 }
+      );
     }
 
-    const newUnit = await prisma.packagingUnit.create({
+    if (!departmentUuid || departmentUuid.trim() === "") {
+      return NextResponse.json(
+        { error: "departmentUuid is required" },
+        { status: 400 }
+      );
+    }
+    if (recipientType == "Person") {
+      if (!userPersonUuid || userPersonUuid.trim() == "") {
+        return NextResponse.json(
+          { error: "userPersonUuid is required" },
+          { status: 400 }
+        );
+      }
+    }
+    const newrecipient = await prisma.recipientsMaster.create({
       data: {
-        name,
-        countable: Boolean(countable),
+        departmentUuid,
+        isActive: isActive as boolean,
+        userPersonUuid: recipientType == "Person" ? userPersonUuid : null,
+        recipientType,
       },
     });
 
-    return NextResponse.json(newUnit, { status: 201 });
+    return NextResponse.json(newrecipient, { status: 201 });
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json(
@@ -55,7 +93,7 @@ export async function POST(req: Request) {
   }
 }
 
-// PUT: Update a packaging unit
+// PUT: Update a recuipient
 export async function PUT(req: Request) {
   try {
     const body = await req.json();
@@ -64,7 +102,7 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "ID is required" });
     }
 
-    const updatedUnit = await prisma.packagingUnit.update({
+    const updatedUnit = await prisma.recipientsMaster.update({
       where: { uuid: id },
       data: {
         ...(name && { name }),
@@ -89,7 +127,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "ID is required" });
     }
 
-    const deletedUnit = await prisma.packagingUnit.delete({
+    const deletedUnit = await prisma.recipientsMaster.delete({
       where: { uuid: id },
     });
 
