@@ -24,6 +24,7 @@ import {
   Person,
   UserRole,
 } from "@prisma/client";
+import { LetterSenderRecipientType } from "lib/constants";
 
 interface RecipientModel {
   uuid: string;
@@ -66,7 +67,7 @@ export default function MasterRecipient() {
 
   const filteredDepartments = recipients.filter(
     (rec) =>
-      rec.recipientType === "Department" &&
+      rec.recipientType === LetterSenderRecipientType.DEPARTMENT &&
       rec.DepartmentRecipient?.name
         ?.toLowerCase()
         .includes(departmentSearch.toLowerCase())
@@ -122,7 +123,7 @@ export default function MasterRecipient() {
 
   const filteredPersons = recipients.filter(
     (rec) =>
-      rec.recipientType === "Person" &&
+      rec.recipientType === LetterSenderRecipientType.PERSON &&
       `${rec.UserPersonRecipient?.Person?.firstName ?? ""} ${
         rec.UserPersonRecipient?.Person?.lastName ?? ""
       }`

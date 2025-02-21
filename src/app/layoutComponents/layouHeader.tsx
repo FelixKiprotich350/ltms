@@ -16,27 +16,44 @@ import {
   HeaderGlobalAction,
   HeaderName,
 } from "@carbon/react";
-import { useRouter } from "next/navigation";
-import exp from "constants";
-import { LtmsUser } from "@prisma/client";
+import {
+  LtmsUser,
+  OrganisationDepartment,
+  Person,
+  UserRole,
+} from "@prisma/client";
 
+interface ExtendedLtmsUser extends LtmsUser {
+  UserRole: UserRole;
+  Department: OrganisationDepartment;
+  Person: Person;
+}
 interface LeftPanelMenuProps {
-  currentUser: any | null;
+  currentUser: ExtendedLtmsUser | null;
   isSideNavExpanded: boolean;
   toggleSideNav: () => void;
   logOutUser: () => void;
   logInPage: () => void;
-  handleMenuToggle: () => void;
+  handleProfileClick: () => void;
 }
 
 const LayoutHeaderComponent: React.FC<LeftPanelMenuProps> = ({
   currentUser,
   isSideNavExpanded,
   toggleSideNav,
-  handleMenuToggle,
+  handleProfileClick,
   logInPage,
   logOutUser,
 }) => {
+  const getInitials = (name: string) => {
+    if (name === null || name == undefined || name.trim() === "") return "N/A";
+    return name
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
+  };
+
   return (
     <Theme theme="g100">
       <Header aria-label="Letter Trail System">
@@ -56,42 +73,53 @@ const LayoutHeaderComponent: React.FC<LeftPanelMenuProps> = ({
         <h5 style={{ marginLeft: "60px" }}>
           The County Government of Uasingishu
         </h5>
-        {currentUser != null && (
-          <HeaderGlobalBar>
-            <HeaderGlobalAction
-              aria-label="Notifications"
-              tooltipAlignment="center"
-              className="action-icons"
-            >
-              <Notification size={20} />
-            </HeaderGlobalAction>
-
-            <HeaderGlobalAction
-              aria-label="Logout"
-              tooltipAlignment="center"
-              className="action-icons"
-              onClick={() => logOutUser()}
-            >
-              <Logout size={20} aria-label="Logout" />
-            </HeaderGlobalAction>
-
-            <HeaderGlobalAction
-              aria-label="App Switcher"
-              tooltipAlignment="end"
-              onClick={handleMenuToggle}
-            >
-              <UserAvatar size={20} initials="JD" />
-            </HeaderGlobalAction>
-          </HeaderGlobalBar>
-        )}
-
-        {currentUser == null && (
+        {currentUser ? (
+          <>
+            <HeaderGlobalBar>
+              <HeaderGlobalAction
+                aria-label={"Welcome " + currentUser.Person?.firstName}
+                tooltipAlignment="center"
+              >
+                <label>{currentUser.Person?.firstName}</label>
+              </HeaderGlobalAction>
+              <HeaderGlobalAction
+                aria-label="Notifications"
+                tooltipAlignment="center"
+                className="action-icons"
+              >
+                <Notification size={20} />
+              </HeaderGlobalAction>
+              <HeaderGlobalAction
+                aria-label="My Profile"
+                tooltipAlignment="end"
+                onClick={handleProfileClick}
+              >
+                <UserAvatar
+                  size={20}
+                  initials={getInitials(
+                    currentUser?.Person?.firstName +
+                      " " +
+                      currentUser?.Person?.lastName
+                  )}
+                />
+              </HeaderGlobalAction>
+              <HeaderGlobalAction
+                aria-label="Logout"
+                tooltipAlignment="center"
+                className="action-icons"
+                onClick={logOutUser}
+              >
+                <Logout size={20} aria-label="Logout" />
+              </HeaderGlobalAction>
+            </HeaderGlobalBar>
+          </>
+        ) : (
           <HeaderGlobalBar>
             <HeaderGlobalAction
               aria-label="Login"
               tooltipAlignment="center"
               className="action-icons"
-              onClick={() => logInPage()}
+              onClick={logInPage}
             >
               Login
             </HeaderGlobalAction>

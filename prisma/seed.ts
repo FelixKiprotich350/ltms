@@ -42,19 +42,19 @@ async function main() {
       {
         uuid: "550e8400-e29b-41d4-a716-446655440000", // Optional (Prisma auto-generates UUID)
         name: "Finance",
-        activeStatus: "ENABLED",
+        activeStatus: true,
         description: "Handles financial matters",
       },
       {
         uuid: "550e8400-e29b-41d4-a716-446655440001",
         name: "Human Resources",
-        activeStatus: "ENABLED",
+        activeStatus: true,
         description: "Manages employee relations",
       },
       {
         uuid: "550e8400-e29b-41d4-a716-446655440002",
         name: "IT Department",
-        activeStatus: "ENABLED",
+        activeStatus: true,
         description: "Manages IT infrastructure and security",
       },
     ],

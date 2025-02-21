@@ -16,6 +16,7 @@ import {
   Select,
 } from "@carbon/react";
 import { SelectItem } from "@carbon/react";
+import { UserAccountLoginStatus } from "lib/constants";
 
 interface Department {
   uuid: string;
@@ -260,8 +261,16 @@ export default function ProductCategories() {
             style={{ marginBottom: "1rem" }}
           >
             <SelectItem key={""} text={"Select Status"} value={""} />
-            <SelectItem key={"ENABLED"} text={"ENABLED"} value={"ENABLED"} />
-            <SelectItem key={"DISABLED"} text={"DISABLED"} value={"DISABLED"} />
+            <SelectItem
+              key={"ENABLED"}
+              text={"ENABLED"}
+              value={UserAccountLoginStatus.ENABLED}
+            />
+            <SelectItem
+              key={"DISABLED"}
+              text={"DISABLED"}
+              value={UserAccountLoginStatus.DISABLED}
+            />
           </Select>
           <TextInput
             id="department-description"

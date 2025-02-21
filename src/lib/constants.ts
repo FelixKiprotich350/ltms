@@ -11,5 +11,19 @@ export function getJwtSecretKey(): string {
 }
 
 //others Defaults
-export const DEFAULT_ROLE_UUID = "93b35be1-e55f-4367-8848-9ef02a6dec99";
-export const DEFAULT_DEPARTMENT_UUID = "c08a5973-b1ec-4db9-b812-4bf2aa74ffda";
+export const DEFAULT_ROLE_UUID = "550e8400-e29b-41d4-a716-446655440012";
+export const DEFAULT_DEPARTMENT_UUID = "550e8400-e29b-41d4-a716-446655440000";
+export const enum LetterSenderRecipientType {
+  DEPARTMENT = "DEPARTMENT",
+  PERSON = "PERSON",
+}
+
+export const enum UserAccountLoginStatus {
+  ENABLED = "ENABLED",
+  DISABLED = "DISABLED",
+}
+export const enum UserAccountApprovalStatus {
+  APPROVED = "APPROVED",
+  PENDING = "PENDING",
+  REJECTED = "REJECTED",
+}

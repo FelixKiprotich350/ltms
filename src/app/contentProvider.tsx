@@ -7,22 +7,32 @@ import { signIn, signOut, useSession } from "next-auth/react";
 
 import LayoutHeaderComponent from "./layoutComponents/layouHeader";
 import LeftPanelMenu from "./layoutComponents/leftPanelMenu";
+import {
+  LtmsUser,
+  OrganisationDepartment,
+  Person,
+  UserRole,
+} from "@prisma/client";
 
 interface ProvidersProps {
   children: ReactNode;
 }
-
+interface ExtendedLtmsUser extends LtmsUser {
+  UserRole: UserRole;
+  Department: OrganisationDepartment;
+  Person: Person;
+}
 const ContentProviders: React.FC<ProvidersProps> = ({ children }) => {
   const { data: session, status } = useSession();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSideNavExpanded, setIsSideNavExpanded] = useState(true);
+  const [isSideNavExpanded, setIsSideNavExpanded] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/signing");
+      window.location.href = "/signing";
+      // router.push("/signing");
     }
-  }, [status, router]);
+  }, [router]);
   useEffect(() => {
     const storedState = localStorage.getItem("sideNavExpanded");
     if (storedState !== null) {
@@ -44,24 +54,26 @@ const ContentProviders: React.FC<ProvidersProps> = ({ children }) => {
     signOut({ callbackUrl: "/signing" });
   };
 
-  const handleMenuToggle = () => setIsMenuOpen((prev) => !prev);
+  const handleProfileClick = () => {};
 
   return (
     <div>
       <LayoutHeaderComponent
-        currentUser={session?.user}
+        currentUser={session?.user as ExtendedLtmsUser}
         isSideNavExpanded={isSideNavExpanded}
         toggleSideNav={toggleSideNav}
         logInPage={logInPage}
         logOutUser={logOutUser}
-        handleMenuToggle={handleMenuToggle}
+        handleProfileClick={handleProfileClick}
       />
 
       <Theme theme="g10">
-        <LeftPanelMenu
-          isSideNavExpanded={isSideNavExpanded}
-          currentUser={session?.user}
-        />
+        {session?.user && (
+          <LeftPanelMenu
+            isSideNavExpanded={isSideNavExpanded}
+            currentUser={session?.user}
+          />
+        )}
         <Content>
           <Theme theme="white">
             <div style={{ padding: "5px" }}>{children}</div>

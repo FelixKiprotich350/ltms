@@ -12,7 +12,7 @@ type Notification = {
 };
 
 type NotificationContextType = {
-  addNotification: (notification: Omit<Notification, "id">) => void;
+  showNotification: (notification: Omit<Notification, "id">) => void;
 };
 
 const NotificationContext = createContext<NotificationContextType | undefined>(
@@ -24,7 +24,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  const addNotification = (notification: Omit<Notification, "id">) => {
+  const showNotification = (notification: Omit<Notification, "id">) => {
     const id = Date.now();
     setNotifications((prev) => [...prev, { ...notification, id }]);
 
@@ -36,7 +36,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   return (
-    <NotificationContext.Provider value={{ addNotification }}>
+    <NotificationContext.Provider value={{ showNotification }}>
       {children}
       <div className="notification-container">
         {notifications.map(({ id, kind, title, subtitle }) => (

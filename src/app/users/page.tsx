@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC, useState, useEffect } from "react";
+import React from "react";
 import {
   Table,
   TableHead,
@@ -11,14 +11,10 @@ import {
   TableContainer,
   Link,
 } from "@carbon/react";
-import {useFetchUsers} from "../hooks/useFetchUsers";
+import { useFetchUsers } from "../hooks/useFetchUsers";
 
-
-
-export default function UserManagement() { 
+export default function UserManagement() {
   const { users, isLoading, error } = useFetchUsers();
-
-
 
   return (
     <div>
@@ -33,7 +29,7 @@ export default function UserManagement() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableHeader>ID</TableHeader>
+                <TableHeader>#</TableHeader>
                 <TableHeader>Name</TableHeader>
                 <TableHeader>Gender</TableHeader>
                 <TableHeader>Email</TableHeader>
@@ -44,9 +40,9 @@ export default function UserManagement() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>{user.id}</TableCell>
+              {users.map((user, index) => (
+                <TableRow key={user.uuid}>
+                  <TableCell>{index + 1}</TableCell> {/* Auto-incrementing row number */}
                   <TableCell>
                     {user.Person?.firstName} {user.Person?.lastName}
                   </TableCell>
@@ -57,7 +53,7 @@ export default function UserManagement() {
                   <TableCell>{user.approvalStatus}</TableCell>
                   <TableCell>
                     <Link href={`/users/${user.uuid}`}>
-                      <a style={{ color: "#0f62fe", textDecoration: "underline" }}>View User</a>
+                      <span style={{ color: "#0f62fe", textDecoration: "underline" }}>View User</span>
                     </Link>
                   </TableCell>
                 </TableRow>

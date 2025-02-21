@@ -27,14 +27,13 @@ interface LetterRequestModel {
   letterCategoryUuid: string;
   senderUserUuid: string;
   senderDepartmentUuid: string;
-  status: string;
   createdAt: Date;
   updatedAt: Date;
   SenderDepartment: OrganisationDepartment;
   SenderUser: LtmsUser;
 }
 
-export default function OutgoingLetterRequests() {
+export default function DraftedLetterRequests() {
   const [letters, setLetters] = useState<LetterRequestModel[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRequest, setSelectedRequest] =
@@ -42,7 +41,10 @@ export default function OutgoingLetterRequests() {
   const [isLoading, setIsLoading] = useState(false);
   const fetchRequests = async () => {
     try {
-      const url = new URL("/api/letterrequests/outgoing", window.location.origin);
+      const url = new URL(
+        "/api/letterrequests/drafts",
+        window.location.origin
+      );
       url.searchParams.append("withrelations", "true"); // Add the parameter
 
       const response = await fetch(url.toString());
@@ -103,7 +105,7 @@ export default function OutgoingLetterRequests() {
             marginBottom: "4px",
           }}
         >
-          Outgoing Letters
+          Drafted Letters
         </p>
         <TextInput
           id="search-letters"
@@ -165,18 +167,6 @@ export default function OutgoingLetterRequests() {
                     <strong>Date:</strong>
                     {new Date(item.createdAt).toLocaleDateString()}
                   </p>
-                  <p
-                    style={{
-                      flex: 1,
-                      margin: "0",
-                      textAlign: "right",
-                      fontWeight: "bold",
-                      color: item.status === "PENDING" ? "darkred" : "green",
-                      fontSize: "0.8rem",
-                    }}
-                  >
-                    {item.status === "PENDING" ? "Pending" : "Received"}
-                  </p>
                 </div>
               </div>
             ))}
@@ -203,9 +193,6 @@ export default function OutgoingLetterRequests() {
             <p>
               <strong>Confidentiality:</strong>{" "}
               {selectedRequest.confidentiality.toUpperCase()}
-            </p>
-            <p>
-              <strong>Status:</strong> {selectedRequest.status}
             </p>
             <p>
               <strong>Created At:</strong>{" "}

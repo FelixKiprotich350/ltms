@@ -10,6 +10,7 @@ import {
   MultiSelect,
 } from "@carbon/react";
 import { OrganisationDepartment, RecipientsMaster } from "@prisma/client";
+import { LetterSenderRecipientType } from "lib/constants";
 
 export interface RecipientDepartmentModel {
   uuid: string;
@@ -27,6 +28,7 @@ type FormData = {
   subject: string;
   letterbody: string;
   categoryUuid: string;
+  senderType: string;
   recipientDepartments: string[]; // Or another appropriate type
   attachments: File[];
   externalReference: string;
@@ -38,6 +40,7 @@ export default function InitialSetup() {
     subject: "",
     letterbody: "",
     categoryUuid: "",
+    senderType: "",
     recipientDepartments: [], // Store multiple selected departments
     attachments: [],
     externalReference: "",
@@ -63,7 +66,8 @@ export default function InitialSetup() {
         setDepartments(
           (data as Array<RecipientDepartmentModel>).filter(
             (item) =>
-              item.recipientType == "Department" && item.isActive == true
+              item.recipientType == LetterSenderRecipientType.DEPARTMENT &&
+              item.isActive == true
           )
         );
       } else {
@@ -154,13 +158,13 @@ export default function InitialSetup() {
     formDataToSend.append("subject", formData.subject);
     formDataToSend.append("letterbody", formData.letterbody);
     formDataToSend.append("categoryUuid", formData.categoryUuid);
+    formDataToSend.append("senderType", formData.senderType);
     formDataToSend.append("confidentiality", formData.confidentiality);
     formDataToSend.append("externalReference", formData.externalReference);
     // Append multiple selected departments
     formData.recipientDepartments.forEach((dept) => {
       formDataToSend.append("recipientDepartments", dept);
     });
-    
 
     // Append attachments
     formData.attachments.forEach((file) => {
@@ -210,6 +214,22 @@ export default function InitialSetup() {
               onChange={handleInputChange}
               style={{ marginBottom: "1rem" }}
             />
+            <Select
+              id="senderType"
+              name="senderType"
+              labelText="Sender Type"
+              value={formData.senderType}
+              onChange={handleInputChange}
+              style={{ marginBottom: "1rem" }}
+            >
+              <SelectItem text="Select Sender Type" value="" key="default" />
+              <SelectItem
+                text="Department"
+                value="DEPARTMENT"
+                key="Department"
+              />
+              <SelectItem text="Person" value="PERSON" key="Person" />
+            </Select>
             <TextArea
               id="letterbody"
               name="letterbody"
@@ -295,7 +315,7 @@ export default function InitialSetup() {
                   marginBottom: "0.5rem",
                 }}
               >
-                Attachments (PDF)
+                Add File Attachments
               </label>
               <input
                 type="file"
@@ -376,7 +396,7 @@ const styles: Record<string, CSSProperties> = {
     minWidth: "300px",
   },
   textArea: {
-    maxHeight: "300px",
+    maxHeight: "230px",
     minHeight: "200px",
     overflow: "auto",
     resize: "vertical",

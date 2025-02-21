@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { Person, Role, TrtUser as User } from "@prisma/client";
+import { LtmsUser, Person, LtmsUser as User, UserRole } from "@prisma/client";
 import {
   Grid,
   Column,
@@ -13,16 +13,16 @@ import {
 } from "@carbon/react";
 import { useFetchUsers } from "app/hooks/useFetchUsers";
 
-interface TrtUser extends User {
+interface CustomUser extends User {
   Person: Person;
-  Role: Role;
+  Role: UserRole;
 }
 
 export default function UserDetailsPage() {
   const { uuid } = useParams();
-  const [user, setUser] = useState<TrtUser | null>(null);
-  const [currentUser, setCurrentUser] = useState<TrtUser | null>(null);
-  const [roles, setRoles] = useState<Role[]>([]);
+  const [user, setUser] = useState<CustomUser | null>(null);
+  const [currentUser, setCurrentUser] = useState<CustomUser | null>(null);
+  const [roles, setRoles] = useState<UserRole[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const {
@@ -34,7 +34,7 @@ export default function UserDetailsPage() {
   useEffect(() => {
     if (!uuid) return;
 
-    setUser(users.find((item: TrtUser) => item.uuid == uuid) ?? null);
+    setUser(users.find((item: CustomUser) => item.uuid == uuid) ?? null);
   }, [uuid]);
 
   const updateUserStatus = async (action: "approve" | "disable") => {
@@ -54,7 +54,7 @@ export default function UserDetailsPage() {
     }
   };
 
-  const updateUserRole = async (newRole: Role) => {
+  const updateUserRole = async (newRole: UserRole) => {
     if (!user) return;
     try {
       const response = await fetch(`/api/users/${uuid}/role`, {
@@ -100,9 +100,9 @@ export default function UserDetailsPage() {
                   <Dropdown
                     id="role-dropdown"
                     items={roles}
-                    itemToString={(role: Role) => role.name}
+                    itemToString={(role: UserRole) => role.name}
                     initialSelectedItem={user.Role}
-                    onChange={(selectedItem: Role) =>
+                    onChange={(selectedItem: UserRole) =>
                       updateUserRole(selectedItem)
                     }
                   />

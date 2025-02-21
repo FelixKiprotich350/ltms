@@ -56,6 +56,8 @@ model LtmsUser {
   // LetterTicket     LetterTicket[]
 
   LetterTicket LetterTicket[] @relation(name: "userCreatingTicket")
+
+  DraftedLetterRequest DraftedLetterRequest[] @relation("LetterSender")
 }
 
 model UserRole {
@@ -91,6 +93,8 @@ model OrganisationDepartment {
   // RecipientsMaster RecipientsMaster[]
 
   RecipientsMaster RecipientsMaster[] @relation(name: "Departmentofrecipient")
+
+  DraftedLetterRequest DraftedLetterRequest[] @relation("LetterDepartment")
 }
 
 model DepartmentRole {
@@ -103,29 +107,6 @@ model DepartmentRole {
   updatedAt   DateTime @updatedAt
 }
 
-//letter request
-model LetterRequest {
-  uuid                 String                  @id @default(uuid())
-  externalReference    String?
-  subject              String
-  body                 String
-  confidentiality      String
-  letterCategoryUuid   String
-  LetterCategory       LetterCategory          @relation(fields: [letterCategoryUuid], references: [uuid])
-  senderUserUuid       String
-  SenderUser           LtmsUser                @relation("LetterSender", fields: [senderUserUuid], references: [uuid])
-  senderDepartmentUuid String
-  SenderDepartment     OrganisationDepartment? @relation("LetterDepartment", fields: [senderDepartmentUuid], references: [uuid])
-  status               String                  @default("PENDING")
-  Approvals            Approval[]
-  Attachments          Attachment[]
-  Logs                 Log[]
-  LetterRecipients     LetterRecipients[]      @relation(name: "LetterstoRecipients")
-  createdAt            DateTime                @default(now())
-  updatedAt            DateTime                @updatedAt
-  LetterTicket         LetterTicket[]          @relation(name: "LetterTicket")
-}
-
 model LetterCategory {
   uuid        String          @id @default(uuid()) // UUID as a unique field
   name        String
@@ -134,6 +115,57 @@ model LetterCategory {
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   Letter      LetterRequest[]
+
+  DraftedLetterRequest DraftedLetterRequest[]
+}
+
+//letter request
+model LetterRequest {
+  uuid                 String                 @id @default(uuid())
+  externalReference    String?
+  subject              String
+  body                 String
+  confidentiality      String
+  senderType           String
+  parentLetterUuid     String? // Nullable to allow root letters
+  ParentLetter         LetterRequest?         @relation("ParentChild", fields: [parentLetterUuid], references: [uuid])
+  ChildLetters         LetterRequest[]        @relation("ParentChild") // One-to-many self-relation
+  letterCategoryUuid   String
+  LetterCategory       LetterCategory         @relation(fields: [letterCategoryUuid], references: [uuid])
+  senderUserUuid       String
+  SenderUser           LtmsUser               @relation("LetterSender", fields: [senderUserUuid], references: [uuid])
+  senderDepartmentUuid String
+  SenderDepartment     OrganisationDepartment @relation("LetterDepartment", fields: [senderDepartmentUuid], references: [uuid])
+  status               String
+  Approvals            Approval[]
+  Attachments          Attachment[]
+  Logs                 Log[]
+  LetterRecipients     LetterRecipients[]     @relation(name: "LetterstoRecipients")
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  LetterTicket         LetterTicket[]         @relation(name: "LetterTicket")
+}
+
+model DraftedLetterRequest {
+  uuid                 String                 @id @default(uuid())
+  externalReference    String?
+  subject              String?
+  body                 String?
+  confidentiality      String?
+  senderType           String?
+  letterCategoryUuid   String?
+  LetterCategory       LetterCategory?        @relation(fields: [letterCategoryUuid], references: [uuid])
+  senderUserUuid       String
+  SenderUser           LtmsUser               @relation("LetterSender", fields: [senderUserUuid], references: [uuid])
+  senderDepartmentUuid String
+  SenderDepartment     OrganisationDepartment @relation("LetterDepartment", fields: [senderDepartmentUuid], references: [uuid])
+  Approvals            Approval[]
+  Attachments          Attachment[]
+  Logs                 Log[]
+  LetterRecipients     LetterRecipients[]     @relation(name: "LetterstoRecipients")
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  LetterTicket         LetterTicket[]         @relation(name: "LetterTicket")
 }
 
 model RecipientsMaster {
@@ -150,13 +182,14 @@ model RecipientsMaster {
 }
 
 model LetterRecipients {
-  uuid          String           @id @default(uuid()) // UUID as a unique field
-  letterUuid    String
-  recipientUuid String
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-  Letter        LetterRequest    @relation(name: "LetterstoRecipients", fields: [letterUuid], references: [uuid])
-  Recipient     RecipientsMaster @relation(fields: [recipientUuid], references: [uuid])
+  uuid                 String                 @id @default(uuid()) // UUID as a unique field
+  letterUuid           String
+  recipientUuid        String
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  Letter               LetterRequest          @relation(name: "LetterstoRecipients", fields: [letterUuid], references: [uuid])
+  RecipientMaster      RecipientsMaster       @relation(fields: [recipientUuid], references: [uuid])
+  DraftedLetterRequest DraftedLetterRequest[] @relation(name: "LetterstoRecipients")
 
   @@unique([letterUuid, recipientUuid]) // Composite primary key
 }
@@ -170,17 +203,22 @@ model Attachment {
   fileName   String
 
   createdAt DateTime @default(now())
+
+  DraftedLetterRequest DraftedLetterRequest[]
 }
 
 model LetterTicket {
   uuid                    String        @id @default(uuid()) // UUID as a unique field
-  letterUuid              String
+  letterUuid              String        @unique
   userCreatingTicketUuuid String
   ticketNumber            String        @unique
+  ticketClosed            Boolean       @default(false)
   createdAt               DateTime      @default(now())
   updatedAt               DateTime      @updatedAt
   Letter                  LetterRequest @relation(name: "LetterTicket", fields: [letterUuid], references: [uuid])
   UserCreating            LtmsUser      @relation(name: "userCreatingTicket", fields: [userCreatingTicketUuuid], references: [uuid])
+
+  DraftedLetterRequest DraftedLetterRequest[] @relation(name: "LetterTicket")
 }
 
 model UserGroup {
@@ -222,6 +260,8 @@ model Approval {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  DraftedLetterRequest DraftedLetterRequest[]
 }
 
 enum ApprovalStatus {
@@ -258,4 +298,6 @@ model Log {
   action     String
 
   createdAt DateTime @default(now())
+
+  DraftedLetterRequest DraftedLetterRequest[]
 }

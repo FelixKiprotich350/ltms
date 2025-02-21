@@ -43,7 +43,7 @@ const LeftPanelMenu: React.FC<LeftPanelMenuProps> = ({
           (user.Role?.name == "Admin" && (
           
           ))} */}
-        <SideNavMenu title="Requests">
+        <SideNavMenu title="Letters">
           <Link href="/requests/new" passHref legacyBehavior>
             <SideNavMenuItem>New Request</SideNavMenuItem>
           </Link>
@@ -58,12 +58,9 @@ const LeftPanelMenu: React.FC<LeftPanelMenuProps> = ({
           </Link>
         </SideNavMenu>
         <SideNavMenu title="Tickets">
-          <Link href="/tickets/new" passHref legacyBehavior>
-            <SideNavMenuItem>New Tickets</SideNavMenuItem>
-          </Link>
-          <Link href="/tickets/inprocess" passHref legacyBehavior>
-            <SideNavMenuItem>In-Process</SideNavMenuItem>
-          </Link>
+          <Link href="/tickets/active" passHref legacyBehavior>
+            <SideNavMenuItem>Active Tickets</SideNavMenuItem>
+          </Link> 
           <Link href="/tickets/caseclosed" passHref legacyBehavior>
             <SideNavMenuItem>Case Closed</SideNavMenuItem>
           </Link>

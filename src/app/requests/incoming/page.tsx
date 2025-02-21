@@ -12,27 +12,22 @@ import {
   TextInput,
   InlineLoading,
 } from "@carbon/react";
-import { LtmsUser, OrganisationDepartment } from "@prisma/client";
+import {
+  LetterRequest,
+  LtmsUser,
+  OrganisationDepartment,
+} from "@prisma/client";
 import "./page.css";
 import { Button } from "@carbon/react";
+import { useNotification } from "app/layoutComponents/notificationProvider";
 
-interface LetterRequestModel {
-  uuid: string;
-  externalReference: string | null;
-  subject: string;
-  body: string;
-  confidentiality: string;
-  letterCategoryUuid: string;
-  senderUserUuid: string;
-  senderDepartmentUuid: string;
-  status: string;
-  createdAt: Date;
-  updatedAt: Date;
+interface LetterRequestModel extends LetterRequest {
   SenderDepartment: OrganisationDepartment;
   SenderUser: LtmsUser;
 }
 
 export default function IncomingLetterRequests() {
+  const { showNotification } = useNotification();
   const [letters, setLetters] = useState<LetterRequestModel[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRequest, setSelectedRequest] =
@@ -42,7 +37,10 @@ export default function IncomingLetterRequests() {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const url = new URL("/api/letterrequests/all", window.location.origin);
+        const url = new URL(
+          "/api/letterrequests/incoming",
+          window.location.origin
+        );
         url.searchParams.append("withrelations", "true");
 
         const response = await fetch(url.toString());
@@ -78,7 +76,7 @@ export default function IncomingLetterRequests() {
       const response = await fetch(
         `/api/letterrequests/receive/${selectedRequest.uuid}`,
         {
-          method: "POST",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
@@ -86,6 +84,12 @@ export default function IncomingLetterRequests() {
       );
 
       if (response.ok) {
+        showNotification({
+          title: "Operation Completed",
+          subtitle: "Letter received Successfully",
+          kind: "success",
+          timeout: 5000,
+        });
         // Update UI by changing the status of the received letter
         setLetters((prevLetters) =>
           prevLetters.map((letter) =>

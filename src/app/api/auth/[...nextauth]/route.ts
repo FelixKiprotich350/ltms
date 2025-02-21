@@ -44,6 +44,7 @@ export const authOptions: NextAuthOptions = {
 
         return {
           id: user.uuid, // Explicitly assign `id`
+          uuid: user.uuid, 
           name: user.Person?.firstName + " " + user.Person?.lastName,
           fullName: user.Person?.firstName + " " + user.Person?.lastName,
           email: user.Person?.email, // Assuming `username` is the email
@@ -60,7 +61,7 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt", // Use JWT-based session
-    maxAge: 60 * 5 , // Session expires in  5 minutes
+    maxAge: 60 * 5, // Session expires in  5 minutes
     updateAge: 0, // Refresh JWT every hour
   },
   jwt: {

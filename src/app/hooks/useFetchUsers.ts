@@ -1,13 +1,13 @@
-import { Person, Role, TrtUser as user } from "@prisma/client";
+import { Person, UserRole, LtmsUser as user } from "@prisma/client";
 import { useEffect, useState } from "react";
 
 
-interface TrtUser extends user {
+interface CustomUser extends user {
   Person: Person;
-  Role: Role;
+  Role: UserRole;
 }
 export const useFetchUsers = () => {
-  const [users, setUsers] = useState<TrtUser[]>([]);
+  const [users, setUsers] = useState<CustomUser[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 

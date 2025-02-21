@@ -33,7 +33,7 @@ interface DashboardStatistics {
 }
 
 export default function Dashboard() {
-  const { addNotification } = useNotification();
+  const { showNotification } = useNotification();
   const [dashboardData, setDashboardData] = useState<
     DashboardStatistics | [] | any
   >({
@@ -52,7 +52,7 @@ export default function Dashboard() {
         const data = await response.json();
         setDashboardData([]);
       } catch (error) {
-        addNotification({
+        showNotification({
           title: "Error",
           subtitle: "Failed to fetch products",
           kind: "error",
