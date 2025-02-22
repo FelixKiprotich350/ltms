@@ -92,8 +92,7 @@ export async function DELETE(
   }
 }
 
-
-export async function generateTicketNumber() {
+async function generateTicketNumber() {
   const currentDate = new Date();
   const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // Ensure 2 digits
   const year = currentDate.getFullYear();
@@ -105,7 +104,7 @@ export async function generateTicketNumber() {
         startsWith: `T-${month}-${year}`,
       },
     },
-    
+
     orderBy: {
       createdAt: "desc",
     },
@@ -119,7 +118,10 @@ export async function generateTicketNumber() {
   }
 
   // Format the ticket number
-  const ticketNumber = `T-${month}-${year}-${String(nextNumber).padStart(3, "0")}`;
+  const ticketNumber = `T-${month}-${year}-${String(nextNumber).padStart(
+    3,
+    "0"
+  )}`;
 
   return ticketNumber;
 }

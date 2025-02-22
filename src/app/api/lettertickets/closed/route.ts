@@ -45,7 +45,7 @@ export async function GET(request: Request) {
 
     // Fetch tickets related to the letters
     const tickets = await prisma.letterTicket.findMany({
-      where: { letterUuid: { in: uuidList } },
+      where: { letterUuid: { in: uuidList }, ticketClosed: true },
       include: { Letter: true },
       orderBy: { createdAt: "desc" },
     });

@@ -7,43 +7,32 @@ export async function GET(request: Request) {
   try {
     // Get user session
     const session = await getServerSession(authOptions);
-    if (!session?.user?.uuid) {
+    const userUuid = session?.user?.uuid;
+    if (!userUuid)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
 
-    // Fetch user and department
+    // Fetch user's department UUID
     const user = await prisma.ltmsUser.findUnique({
-      where: { uuid: session.user.uuid },
-      include: { Department: { select: { uuid: true } } },
+      where: { uuid: userUuid },
+      select: { Department: { select: { uuid: true } } },
     });
 
-    if (!user || !user.Department?.uuid) {
+    const departmentUuid = user?.Department?.uuid;
+    if (!departmentUuid)
       return NextResponse.json(
         { error: "User department not found" },
         { status: 404 }
       );
-    }
 
-    const departmentUuid = user.Department.uuid;
-
-    // Parse request parameters
-    const url = new URL(request.url);
-    const withRelations = url.searchParams.get("withrelations") === "true";
-
-    // Fetch recipients
-    const recipients = await prisma.letterRecipients.findMany({
+    // Get letter UUIDs related to the user
+    const letterUuids = await prisma.letterRecipients.findMany({
       where: {
         OR: [
-          {
-            RecipientMaster: {
-              recipientType: "DEPARTMENT",
-              departmentUuid: departmentUuid,
-            },
-          },
+          { RecipientMaster: { recipientType: "DEPARTMENT", departmentUuid } },
           {
             RecipientMaster: {
               recipientType: "PERSON",
-              userPersonUuid: user.uuid,
+              userPersonUuid: userUuid,
             },
           },
         ],
@@ -51,32 +40,19 @@ export async function GET(request: Request) {
       select: { letterUuid: true },
     });
 
-    if (recipients.length === 0) {
-      return NextResponse.json([], { status: 200 }); // Return empty array properly
-    }
+    const uuidList = letterUuids.map((r) => r.letterUuid);
+    if (uuidList.length === 0) return NextResponse.json([], { status: 200 });
 
-    // Fetch letters
-    const letterUuids = recipients.map((r) => r.letterUuid);
-    const letters = await prisma.letterRequest.findMany({
-      where: { uuid: { in: letterUuids } },
-      select: { uuid: true },
-      orderBy: { createdAt: "desc" },
-    });
-
-    if (letters.length === 0) {
-      return NextResponse.json([], { status: 200 });
-    }
-
-    // Fetch tickets
+    // Fetch tickets related to the letters
     const tickets = await prisma.letterTicket.findMany({
-      where: { uuid: { in: letters.map((r) => r.uuid) } },
-      include: { Letter: withRelations },
+      where: { letterUuid: { in: uuidList }, ticketClosed: false },
+      include: { Letter: true },
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(tickets, { status: 200 });
+    return NextResponse.json(tickets);
   } catch (error) {
-    console.error("Error fetching letter Tickets:", error);
+    console.error("Error fetching letter tickets:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

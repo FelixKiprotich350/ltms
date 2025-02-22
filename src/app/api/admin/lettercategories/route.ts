@@ -29,8 +29,7 @@ export async function POST(request: Request) {
     const newCategory = await prisma.letterCategory.create({
       data: {
         name,
-        description,
-        recipientType,
+        description, 
         isretired: Boolean(isretired), 
       },
     });
