@@ -8,7 +8,7 @@ interface LetterTicketModel extends LetterTicket {
   Letter: LetterRequest;
 }
 
-export default function ActiveLetterTickets() {
+export default function ClosedLetterTickets() {
   const [tickets, setTickets] = useState<LetterTicketModel[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRequest, setSelectedRequest] =
@@ -16,7 +16,7 @@ export default function ActiveLetterTickets() {
   const [isLoading, setIsLoading] = useState(false);
   const fetchRequests = async () => {
     try {
-      const url = new URL("/api/lettertickets/active", window.location.origin);
+      const url = new URL("/api/lettertickets/closed", window.location.origin);
       url.searchParams.append("withrelations", "true"); // Add the parameter
 
       const response = await fetch(url.toString());
@@ -75,7 +75,7 @@ export default function ActiveLetterTickets() {
             marginBottom: "4px",
           }}
         >
-          Active Tickets
+          Closed Tickets
         </p>
         <TextInput
           id="search-letters"

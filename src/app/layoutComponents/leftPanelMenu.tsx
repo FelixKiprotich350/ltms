@@ -37,7 +37,7 @@ const LeftPanelMenu: React.FC<LeftPanelMenuProps> = ({
     >
       <SideNavItems>
         <Link href="/dashboard" passHref legacyBehavior>
-          <SideNavLink>Dashboard </SideNavLink>
+          <SideNavLink>Dashboard</SideNavLink>
         </Link>
         {/* {user.Role?.name == "Cashier" ||
           (user.Role?.name == "Admin" && (
@@ -66,14 +66,6 @@ const LeftPanelMenu: React.FC<LeftPanelMenuProps> = ({
           </Link>
           <Link href="/tickets/others" passHref legacyBehavior>
             <SideNavMenuItem>others</SideNavMenuItem>
-          </Link>
-        </SideNavMenu>
-        <SideNavMenu title="Monitoring">
-          <Link href="/monitoring/open" passHref legacyBehavior>
-            <SideNavMenuItem>Open Tickets</SideNavMenuItem>
-          </Link>
-          <Link href="/monitoring/closed" passHref legacyBehavior>
-            <SideNavMenuItem>Closed Tickets</SideNavMenuItem>
           </Link>
         </SideNavMenu>
         <SideNavMenu title="Recipients">
@@ -112,7 +104,6 @@ const LeftPanelMenu: React.FC<LeftPanelMenuProps> = ({
             <SideNavMenuItem>Categories</SideNavMenuItem>
           </Link>
         </SideNavMenu>
-
         {/* {user.Role?.name == "Admin" && (
          
         )} */}
@@ -141,7 +132,17 @@ const LeftPanelMenu: React.FC<LeftPanelMenuProps> = ({
             <SideNavMenuItem>User Reports</SideNavMenuItem>
           </Link> */}
         </SideNavMenu>
-        {/* <SideNavLink href="/datafetch"></SideNavLink> */}
+        <SideNavMenu title="My Account">
+          <Link href="/myaccount/profile" passHref legacyBehavior>
+            <SideNavLink>My Profile</SideNavLink>
+          </Link>
+          <Link href="/myaccount/passwordchange" passHref legacyBehavior>
+            <SideNavMenuItem>Change Password</SideNavMenuItem>
+          </Link>
+          {/* <Link href="/reports/payments" passHref legacyBehavior>
+            <SideNavMenuItem>Payment Reports</SideNavMenuItem>
+          </Link> */}
+        </SideNavMenu>
       </SideNavItems>
     </SideNav>
   );

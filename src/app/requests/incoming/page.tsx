@@ -20,6 +20,7 @@ import {
 import "./page.css";
 import { Button } from "@carbon/react";
 import { useNotification } from "app/layoutComponents/notificationProvider";
+import { LeterRecipientReceivedStatus } from "lib/constants";
 
 interface LetterRequestModel extends LetterRequest {
   SenderDepartment: OrganisationDepartment;
@@ -75,6 +76,52 @@ export default function IncomingLetterRequests() {
     try {
       const response = await fetch(
         `/api/letterrequests/receive/${selectedRequest.uuid}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        showNotification({
+          title: "Operation Completed",
+          subtitle: "Letter received Successfully",
+          kind: "success",
+          timeout: 5000,
+        });
+        // Update UI by changing the status of the received letter
+        setLetters((prevLetters) =>
+          prevLetters.map((letter) =>
+            letter.uuid === selectedRequest.uuid
+              ? { ...letter, status: "RECEIVED" }
+              : letter
+          )
+        );
+        setSelectedRequest((prev) =>
+          prev ? { ...prev, status: "RECEIVED" } : null
+        );
+      } else {
+        console.error("Failed to receive letter");
+      }
+    } catch (error) {
+      console.error("Error receiving letter:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const handleReplyLetter = async () => {
+    if (!selectedRequest) return;
+  };
+  const handleSubmitReplyLetter = async () => {
+    if (!selectedRequest) return;
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(
+        `/api/letterrequests/reply/${selectedRequest.uuid}`,
         {
           method: "PUT",
           headers: {
@@ -214,7 +261,7 @@ export default function IncomingLetterRequests() {
                       fontSize: "0.8rem",
                     }}
                   >
-                    {item.status === "PENDING" ? "Pending" : "Received"}
+                    {item.status === LeterRecipientReceivedStatus.PENDING ? "Pending" : "Received"}
                   </p>
                 </div>
               </div>
@@ -235,8 +282,8 @@ export default function IncomingLetterRequests() {
               <strong>Subject:</strong> {selectedRequest.subject}
             </p> */}
             <p>
-              <strong>Sender:</strong> {selectedRequest.SenderDepartment?.name}
-              ({selectedRequest.SenderUser?.email})
+              <strong>Sender:</strong> {selectedRequest.SenderDepartment?.name}(
+              {selectedRequest.SenderUser?.email})
             </p>
 
             <p>
@@ -254,31 +301,27 @@ export default function IncomingLetterRequests() {
               <strong>Body:</strong> {selectedRequest.body}
             </p>
             <div>
-              <Button
-                kind="primary"
-                size="md"
-                onClick={handleReceiveLetter}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <InlineLoading description="Receiving..." />
-                ) : (
-                  "Receive Letter"
-                )}
-              </Button>
-              <Button
-                kind="none"
-                size="md"
-                onClick={handleReceiveLetter}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <InlineLoading description="Receiving..." />
-                ) : (
-                  "Reply"
-                )}
-              </Button>
+              {selectedRequest.status ===
+              LeterRecipientReceivedStatus.PENDING ? (
+                <Button
+                  kind="primary"
+                  size="md"
+                  onClick={handleReceiveLetter}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <InlineLoading description="Receiving..." />
+                  ) : (
+                    "Receive Letter"
+                  )}
+                </Button>
+              ) : (
+                <Button kind="primary" size="md" onClick={handleReplyLetter}>
+                  Reply
+                </Button>
+              )}
             </div>
+            <div>reply here</div>
           </div>
         ) : (
           <div>

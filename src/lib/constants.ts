@@ -17,6 +17,10 @@ export const enum LetterSenderRecipientType {
   DEPARTMENT = "DEPARTMENT",
   PERSON = "PERSON",
 }
+export const enum LeterRecipientReceivedStatus {
+  RECEIVED = "RECEIVED",
+  PENDING = "PENDING",
+}
 
 export const enum UserAccountLoginStatus {
   ENABLED = "ENABLED",
