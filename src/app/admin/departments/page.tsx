@@ -25,7 +25,7 @@ interface Department {
   description: string;
 }
 
-export default function ProductCategories() {
+export default function OganistaionalDepartment() {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -250,7 +250,7 @@ export default function ProductCategories() {
               setNewCategory({ ...newCategory, name: e.target.value })
             }
             style={{ marginBottom: "1rem" }}
-          />{" "}
+          />
           <Select
             id="department-activestatus"
             labelText="Department Active Status"

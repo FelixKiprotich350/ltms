@@ -93,7 +93,7 @@ export default function UserDetailsPage() {
                 <strong>Email:</strong> {user.email}
               </p>
               <p>
-                <strong>Role:</strong>{" "}
+                <strong>Role:</strong>
                 {currentUser?.uuid === user.uuid ? (
                   user.Role?.name // Display only if it's the current user
                 ) : (

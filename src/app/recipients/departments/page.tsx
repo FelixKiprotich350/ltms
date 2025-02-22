@@ -33,7 +33,7 @@ interface RecipientModel {
   isActive: boolean;
   description: string;
 }
-export default function ProductCategories() {
+export default function RecipientDepartment() {
   const [recipients, setRecipients] = useState<RecipientModel[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -311,7 +311,7 @@ export default function ProductCategories() {
               setNewCategory({ ...newCategory, name: e.target.value })
             }
             style={{ marginBottom: "1rem" }}
-          />{" "}
+          />
           <Select
             id="department-activestatus"
             labelText="Department Active Status"

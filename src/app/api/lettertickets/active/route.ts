@@ -24,6 +24,9 @@ export async function GET(request: Request) {
         { status: 404 }
       );
 
+    const url = new URL(request.url);
+    const withRelations = url.searchParams.get("withrelations") === "true"; // Convert to boolean
+
     // Get letter UUIDs related to the user
     const letterUuids = await prisma.letterRecipients.findMany({
       where: {
@@ -46,7 +49,7 @@ export async function GET(request: Request) {
     // Fetch tickets related to the letters
     const tickets = await prisma.letterTicket.findMany({
       where: { letterUuid: { in: uuidList }, ticketClosed: false },
-      include: { Letter: true },
+      include: withRelations ? { Letter: true } : {},
       orderBy: { createdAt: "desc" },
     });
 

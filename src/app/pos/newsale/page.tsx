@@ -714,7 +714,7 @@ export default function NewSalePage() {
               </Tile>
               <Tile>
                 <p style={{ fontSize: "1.5rem" }}>
-                  <strong>Balance:</strong> Ksh{" "}
+                  <strong>Balance:</strong> Ksh
                   {(totalPaid - grandTotal).toFixed(2)}
                 </p>
               </Tile>

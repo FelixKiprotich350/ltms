@@ -16,7 +16,7 @@ export default function ActiveLetterTickets() {
   const [isLoading, setIsLoading] = useState(false);
   const fetchRequests = async () => {
     try {
-      const url = new URL("/api/lettertickets/closed", window.location.origin);
+      const url = new URL("/api/lettertickets/active", window.location.origin);
       url.searchParams.append("withrelations", "true"); // Add the parameter
 
       const response = await fetch(url.toString());

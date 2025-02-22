@@ -114,7 +114,7 @@ model LetterCategory {
   isretired   Boolean         @default(false)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
-  Letter      LetterRequest[]
+  Letter     LetterRequest[]
 
   DraftedLetterRequest DraftedLetterRequest[]
 }
@@ -144,6 +144,7 @@ model LetterRequest {
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
   LetterTicket         LetterTicket[]         @relation(name: "LetterTicket")
+
 }
 
 model DraftedLetterRequest {
@@ -165,7 +166,6 @@ model DraftedLetterRequest {
   LetterRecipients     LetterRecipients[]     @relation(name: "LetterstoRecipients")
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
-  LetterTicket         LetterTicket[]         @relation(name: "LetterTicket")
 }
 
 model RecipientsMaster {
@@ -216,9 +216,9 @@ model LetterTicket {
   createdAt               DateTime      @default(now())
   updatedAt               DateTime      @updatedAt
   Letter                  LetterRequest @relation(name: "LetterTicket", fields: [letterUuid], references: [uuid])
+  // ChildrenLetters         LetterRequest @relation(name: "ChildrenLetterstoTicket",fields: [letterUuid],references: [parentLetterUuid])
   UserCreating            LtmsUser      @relation(name: "userCreatingTicket", fields: [userCreatingTicketUuuid], references: [uuid])
 
-  DraftedLetterRequest DraftedLetterRequest[] @relation(name: "LetterTicket")
 }
 
 model UserGroup {

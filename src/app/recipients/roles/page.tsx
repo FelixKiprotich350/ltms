@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { FC, useState, useEffect } from "react";
 import {
@@ -21,12 +21,16 @@ interface Category {
   description: string;
 }
 
-export default function ProductCategories () {
+export default function RecipientRole() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [newCategory, setNewCategory] = useState({ id: "", name: "", description: "" });
+  const [newCategory, setNewCategory] = useState({
+    id: "",
+    name: "",
+    description: "",
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   // Fetch categories from the backend
@@ -55,9 +59,10 @@ export default function ProductCategories () {
     setSearchTerm(e.target.value);
   };
 
-  const filteredCategories = categories.filter((category) =>
-    category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    category.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCategories = categories.filter(
+    (category) =>
+      category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      category.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleAddCategory = async () => {
@@ -94,13 +99,16 @@ export default function ProductCategories () {
   const handleSaveCategory = async () => {
     if (editingCategory) {
       try {
-        const response = await fetch(`/api/inventory/categories/${editingCategory.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newCategory),
-        });
+        const response = await fetch(
+          `/api/inventory/categories/${editingCategory.id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(newCategory),
+          }
+        );
 
         if (response.ok) {
           const updatedCategory = await response.json();
@@ -148,7 +156,11 @@ export default function ProductCategories () {
         onChange={handleSearchChange}
         style={{ marginBottom: "1rem", width: "100%" }}
       />
-      <Button kind="primary" onClick={() => setIsModalOpen(true)} style={{ marginBottom: "1rem" }}>
+      <Button
+        kind="primary"
+        onClick={() => setIsModalOpen(true)}
+        style={{ marginBottom: "1rem" }}
+      >
         Add Category
       </Button>
 
@@ -202,24 +214,29 @@ export default function ProductCategories () {
           primaryButtonText={editingCategory ? "Save" : "Add"}
           secondaryButtonText="Cancel"
           onRequestClose={() => setIsModalOpen(false)}
-          onRequestSubmit={editingCategory ? handleSaveCategory : handleAddCategory}
+          onRequestSubmit={
+            editingCategory ? handleSaveCategory : handleAddCategory
+          }
         >
           <TextInput
             id="category-name"
             labelText="Category Name"
             value={newCategory.name}
-            onChange={(e: any) => setNewCategory({ ...newCategory, name: e.target.value })}
+            onChange={(e: any) =>
+              setNewCategory({ ...newCategory, name: e.target.value })
+            }
             style={{ marginBottom: "1rem" }}
           />
           <TextInput
             id="category-description"
             labelText="Category Description"
             value={newCategory.description}
-            onChange={(e: any) => setNewCategory({ ...newCategory, description: e.target.value })}
+            onChange={(e: any) =>
+              setNewCategory({ ...newCategory, description: e.target.value })
+            }
           />
         </Modal>
       )}
     </div>
   );
-};
-
+}

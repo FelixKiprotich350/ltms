@@ -235,19 +235,19 @@ export default function IncomingLetterRequests() {
               <strong>Subject:</strong> {selectedRequest.subject}
             </p> */}
             <p>
-              <strong>Sender:</strong> {selectedRequest.SenderDepartment?.name}{" "}
+              <strong>Sender:</strong> {selectedRequest.SenderDepartment?.name}
               ({selectedRequest.SenderUser?.email})
             </p>
 
             <p>
-              <strong>Confidentiality:</strong>{" "}
+              <strong>Confidentiality:</strong>
               {selectedRequest.confidentiality.toUpperCase()}
             </p>
             <p>
               <strong>Status:</strong> {selectedRequest.status}
             </p>
             <p>
-              <strong>Created At:</strong>{" "}
+              <strong>Created At:</strong>
               {new Date(selectedRequest.createdAt).toLocaleString()}
             </p>
             <p>
@@ -264,6 +264,18 @@ export default function IncomingLetterRequests() {
                   <InlineLoading description="Receiving..." />
                 ) : (
                   "Receive Letter"
+                )}
+              </Button>
+              <Button
+                kind="none"
+                size="md"
+                onClick={handleReceiveLetter}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <InlineLoading description="Receiving..." />
+                ) : (
+                  "Reply"
                 )}
               </Button>
             </div>

@@ -1,15 +1,7 @@
-// app/api/route.ts
-
+import prisma from "lib/prisma";
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { hashPassword } from "../../../lib/password";
-import bcrypt from "bcryptjs";
 import { DEFAULT_DEPARTMENT_UUID, DEFAULT_ROLE_UUID } from "lib/constants";
-
-const prisma = new PrismaClient({
-  log: ["query", "info", "warn", "error"],
-});
-// const prisma = new PrismaClient();
 
 //interfaces
 type LoginCredentials = {

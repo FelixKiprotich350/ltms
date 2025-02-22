@@ -60,8 +60,8 @@ const LeftPanelMenu: React.FC<LeftPanelMenuProps> = ({
         <SideNavMenu title="Tickets">
           <Link href="/tickets/active" passHref legacyBehavior>
             <SideNavMenuItem>Active Tickets</SideNavMenuItem>
-          </Link> 
-          <Link href="/tickets/caseclosed" passHref legacyBehavior>
+          </Link>
+          <Link href="/tickets/closed" passHref legacyBehavior>
             <SideNavMenuItem>Case Closed</SideNavMenuItem>
           </Link>
           <Link href="/tickets/others" passHref legacyBehavior>
