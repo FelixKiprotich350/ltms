@@ -9,6 +9,16 @@ import {
   Person,
   UserRole,
 } from "@prisma/client";
+import { AdapterUser } from "next-auth/adapters";
+
+// Define CustomUser
+interface CustomUser extends AdapterUser {
+  uuid: string;
+  role: UserRole;
+  department: OrganisationDepartment;
+  person: Person;
+  fullName: string;
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -34,7 +44,8 @@ export const authOptions: NextAuthOptions = {
           },
         });
 
-        if (!user) return null;
+        if (!user || !user?.Department || !user.Person || !user.UserRole)
+          return null;
 
         const validPassword = await bcrypt.compare(
           credentials.password,
@@ -42,16 +53,20 @@ export const authOptions: NextAuthOptions = {
         );
         if (!validPassword) return null;
 
-        return {
-          id: user.uuid, // Explicitly assign `id`
-          uuid: user.uuid, 
-          name: user.Person?.firstName + " " + user.Person?.lastName,
-          fullName: user.Person?.firstName + " " + user.Person?.lastName,
-          email: user.Person?.email, // Assuming `username` is the email
+        // Return an object matching CustomUser
+        const customUser: CustomUser = {
+          id: user.uuid, // Required by NextAuth
+          uuid: user.uuid,
+          name: `${user.Person?.firstName} ${user.Person?.lastName}`,
+          fullName: `${user.Person?.firstName} ${user.Person?.lastName}`,
+          email: user.Person?.email ?? "", // Ensure email is not undefined
           role: user.UserRole,
-          person: user.Person,
           department: user.Department,
+          person: user.Person,
+          emailVerified: null,
         };
+
+        return customUser;
       },
     }),
   ],
@@ -60,30 +75,30 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   session: {
-    strategy: "jwt", // Use JWT-based session
-    maxAge: 60 * 5, // Session expires in  5 minutes
-    updateAge: 0, // Refresh JWT every hour
+    strategy: "jwt",
+    maxAge: 60 * 5, // 5 minutes
+    updateAge: 60 * 2, // Refresh JWT every minute
   },
   jwt: {
-    maxAge: 60 * 5, // Token expires in 24 hours
+    maxAge: 60 * 5, // 5 minutes
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = (user as any).id;
-        token.uuid = (user as any).uuid;
-        token.role = (user as any).department;
-        token.department = (user as any).role;
-        token.person = (user as any).person;
-        token.fullName = (user as any).fullName;
+        const customUser = user as CustomUser;
+        token.id = customUser.uuid;
+        token.uuid = customUser.uuid;
+        token.role = customUser.role;
+        token.department = customUser.department;
+        token.person = customUser.person;
+        token.fullName = customUser.fullName;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.email = token.email;
+        session.user.email = token.email || "";
         session.user.uuid = token.uuid as string;
-        session.user.fullName = token.fullName as string;
         session.user.UserRole = token.role as UserRole;
         session.user.OrganisationDepartment =
           token.department as OrganisationDepartment;
@@ -96,16 +111,16 @@ export const authOptions: NextAuthOptions = {
 
 declare module "next-auth" {
   interface Session {
-    user: {
-      name?: string | null;
-      uuid?: string | null;
-      fullName?: string | null;
-      email?: string | null;
-      image?: string | null;
-      UserRole?: UserRole;
-      OrganisationDepartment?: OrganisationDepartment;
-      Person?: Person;
-    };
+    user: ExtendedUser;
+  }
+
+  interface ExtendedUser extends LtmsUser {
+    id: string;
+    name?: string;
+    image?: string;
+    UserRole: UserRole;
+    OrganisationDepartment: OrganisationDepartment;
+    Person: Person;
   }
 }
 

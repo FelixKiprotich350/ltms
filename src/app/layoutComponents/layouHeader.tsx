@@ -25,7 +25,7 @@ import {
 
 interface ExtendedLtmsUser extends LtmsUser {
   UserRole: UserRole;
-  Department: OrganisationDepartment;
+  OrganisationDepartment: OrganisationDepartment;
   Person: Person;
 }
 interface LeftPanelMenuProps {

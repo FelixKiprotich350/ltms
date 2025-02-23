@@ -6,6 +6,9 @@ import {
   FileUploader,
   InlineLoading,
   IconButton,
+  SelectItem,
+  Button,
+  Select,
 } from "@carbon/react";
 import {
   LetterRequest,
@@ -13,7 +16,6 @@ import {
   OrganisationDepartment,
 } from "@prisma/client";
 import "./page.css";
-import { Button } from "@carbon/react";
 import { useNotification } from "app/layoutComponents/notificationProvider";
 import { LeterRecipientReceivedStatus } from "lib/constants";
 import { CloseLarge, SendFilled } from "@carbon/icons-react";
@@ -31,6 +33,7 @@ export default function IncomingLetterRequests() {
     useState<LetterRequestModel | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [replyMessage, setReplyMessage] = useState("");
+  const [replySenderType, setReplySenderType] = useState("");
   const [attachments, setAttachments] = useState<File[]>([]);
   const [isReplyLetterMode, setIsReplyLetterMode] = useState(false);
 
@@ -125,20 +128,28 @@ export default function IncomingLetterRequests() {
     setIsLoading(true);
 
     try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("replyMessage", replyMessage);
+      formDataToSend.append("senderType", replySenderType);
+      // Append multiple attachments
+      attachments.forEach((item) => {
+        formDataToSend.append("attachments[]", item);
+      });
       const response = await fetch(
         `/api/letterrequests/reply/${selectedRequest.uuid}`,
         {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          method: "POST",
+          // headers: {
+          //   "Content-Type": "application/json",
+          // },
+          body: formDataToSend,
         }
       );
 
       if (response.ok) {
         showNotification({
           title: "Operation Completed",
-          subtitle: "Letter received Successfully",
+          subtitle: "Letter Replied Successfully",
           kind: "success",
           timeout: 5000,
         });
@@ -331,6 +342,26 @@ export default function IncomingLetterRequests() {
             </div>
             {isReplyLetterMode && (
               <div>
+                <Select
+                  id="senderType"
+                  name="senderType"
+                  labelText="Sender Type"
+                  value={replySenderType}
+                  onChange={(e: any) => setReplySenderType(e?.target?.value)}
+                  style={{ marginBottom: "1rem" }}
+                >
+                  <SelectItem
+                    text="Select Sender Type"
+                    value=""
+                    key="default"
+                  />
+                  <SelectItem
+                    text="Department"
+                    value="DEPARTMENT"
+                    key="Department"
+                  />
+                  <SelectItem text="Person" value="PERSON" key="Person" />
+                </Select>
                 <TextInput
                   id="reply-message"
                   labelText="Reply Message"

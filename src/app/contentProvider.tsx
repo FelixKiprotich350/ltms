@@ -19,20 +19,25 @@ interface ProvidersProps {
 }
 interface ExtendedLtmsUser extends LtmsUser {
   UserRole: UserRole;
-  Department: OrganisationDepartment;
+  OrganisationDepartment: OrganisationDepartment;
   Person: Person;
 }
 const ContentProviders: React.FC<ProvidersProps> = ({ children }) => {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const [isSideNavExpanded, setIsSideNavExpanded] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      window.location.href = "/signing";
-      // router.push("/signing");
+      console.log("------------Unauthenticated");
+      const isforcedsignin = localStorage.getItem("isforcedsignin");
+      if (isforcedsignin !== null) {
+        localStorage.setItem("isforcedsignin", true.toString());
+        // router.replace("/signing"); // Directly redirect without reloading
+        window.location.href = "/signing"; // Reload the page
+      }
     }
-  }, [router]);
+  }, [status]);
   useEffect(() => {
     const storedState = localStorage.getItem("sideNavExpanded");
     if (storedState !== null) {

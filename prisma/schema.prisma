@@ -114,7 +114,7 @@ model LetterCategory {
   isretired   Boolean         @default(false)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
-  Letter     LetterRequest[]
+  Letter      LetterRequest[]
 
   DraftedLetterRequest DraftedLetterRequest[]
 }
@@ -127,9 +127,10 @@ model LetterRequest {
   body                 String
   confidentiality      String
   senderType           String
-  parentLetterUuid     String? // Nullable to allow root letters
+  rootLetterUuid       String? // Nullable to allow root letters
+  RootLetter           LetterRequest?         @relation("RootChild", fields: [rootLetterUuid], references: [uuid])
+  parentLetterUuid     String? // Nullable to allow parent letters
   ParentLetter         LetterRequest?         @relation("ParentChild", fields: [parentLetterUuid], references: [uuid])
-  ChildLetters         LetterRequest[]        @relation("ParentChild") // One-to-many self-relation
   letterCategoryUuid   String
   LetterCategory       LetterCategory         @relation(fields: [letterCategoryUuid], references: [uuid])
   senderUserUuid       String
@@ -144,7 +145,8 @@ model LetterRequest {
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
   LetterTicket         LetterTicket[]         @relation(name: "LetterTicket")
-
+  ParentChildLetters   LetterRequest[]        @relation("ParentChild") // One-to-many self-relation
+  RootChildLetters     LetterRequest[]        @relation("RootChild")
 }
 
 model DraftedLetterRequest {
@@ -216,9 +218,7 @@ model LetterTicket {
   createdAt               DateTime      @default(now())
   updatedAt               DateTime      @updatedAt
   Letter                  LetterRequest @relation(name: "LetterTicket", fields: [letterUuid], references: [uuid])
-  // ChildrenLetters         LetterRequest @relation(name: "ChildrenLetterstoTicket",fields: [letterUuid],references: [parentLetterUuid])
   UserCreating            LtmsUser      @relation(name: "userCreatingTicket", fields: [userCreatingTicketUuuid], references: [uuid])
-
 }
 
 model UserGroup {

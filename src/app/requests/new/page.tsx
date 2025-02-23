@@ -8,6 +8,7 @@ import {
   Select,
   TextArea,
   MultiSelect,
+  FilterableMultiSelect,
 } from "@carbon/react";
 import { OrganisationDepartment, RecipientsMaster } from "@prisma/client";
 import { LetterSenderRecipientType } from "lib/constants";
@@ -279,7 +280,7 @@ export default function InitialSetup() {
               ))}
             </Select>
 
-            <MultiSelect
+            <FilterableMultiSelect
               id="recipientDepartments"
               label="Recipient Departments"
               titleText="Recipient Departments"
