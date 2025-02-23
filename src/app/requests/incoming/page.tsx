@@ -249,23 +249,26 @@ export default function IncomingLetterRequests() {
       <div className="right60Column">
         {selectedRequest ? (
           <div>
-            <p className="letterSubjectHeading">{selectedRequest.subject}</p>
+            <div>
+              <p className="letterSubjectHeading">{selectedRequest.subject}</p>
 
-            <p>
-              <strong>Sender:</strong> {selectedRequest.SenderDepartment?.name}(
-              {selectedRequest.SenderUser?.email})
-            </p>
-            <p>
-              <strong>Confidentiality:</strong>
-              {selectedRequest.confidentiality.toUpperCase()}
-            </p>
-            <p>
-              <strong>Status:</strong> {selectedRequest.status}
-            </p>
-            <p>
-              <strong>Created At:</strong>
-              {new Date(selectedRequest.createdAt).toLocaleString()}
-            </p>
+              <p>
+                <strong>Sender:</strong>{" "}
+                {selectedRequest.SenderDepartment?.name}(
+                {selectedRequest.SenderUser?.email})
+              </p>
+              <p>
+                <strong>Confidentiality:</strong>
+                {selectedRequest.confidentiality.toUpperCase()}
+              </p>
+              <p>
+                <strong>Status:</strong> {selectedRequest.status}
+              </p>
+              <p>
+                <strong>Created At:</strong>
+                {new Date(selectedRequest.createdAt).toLocaleString()}
+              </p>
+            </div>
             <div className="letterBodyContainer">
               <p className="botyText">{selectedRequest.body}</p>
               <div>
@@ -274,72 +277,74 @@ export default function IncomingLetterRequests() {
               </div>
             </div>
             <div>
-              {selectedRequest.status ===
-              LeterRecipientReceivedStatus.PENDING ? (
-                <Button
-                  kind="primary"
-                  size="md"
-                  onClick={handleReceiveLetter}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <InlineLoading description="Receiving..." />
-                  ) : (
-                    "Receive Letter"
-                  )}
-                </Button>
-              ) : isReplyLetterMode == false ? (
-                <Button kind="primary" size="md" onClick={handleReplyLetter}>
-                  Reply
-                </Button>
-              ) : (
-                <></>
-              )}
-            </div>
-            {isReplyLetterMode && (
               <div>
-                <TextInput
-                  id="reply-message"
-                  labelText="Reply Message"
-                  placeholder="Type your reply here"
-                  value={replyMessage}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setReplyMessage(e.target.value)
-                  }
-                />
-                <FileUploader
-                  labelTitle="Attachments"
-                  buttonLabel="Add files"
-                  multiple={true}
-                  size="sm"
-                  filenameStatus="edit"
-                  buttonKind="ghost"
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                    setAttachments(Array.from(event.target.files || []))
-                  }
-                />
-                {isReplyLetterMode == true && (
-                  <>
-                    <IconButton
-                      label="Cancel"
-                      kind="ghost"
-                      size="md"
-                      onClick={handleCancelReplyLetter}
-                    >
-                      <CloseLarge size={16} />
-                    </IconButton>
-                    <IconButton
-                      label="Send"
-                      kind="ghost"
-                      size="md"
-                      onClick={handleSubmitReplyLetter}
-                    >
-                      <SendFilled size={16} />
-                    </IconButton>
-                  </>
+                {selectedRequest.status ===
+                LeterRecipientReceivedStatus.PENDING ? (
+                  <Button
+                    kind="primary"
+                    size="md"
+                    onClick={handleReceiveLetter}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <InlineLoading description="Receiving..." />
+                    ) : (
+                      "Receive Letter"
+                    )}
+                  </Button>
+                ) : isReplyLetterMode == false ? (
+                  <Button kind="primary" size="md" onClick={handleReplyLetter}>
+                    Reply
+                  </Button>
+                ) : (
+                  <></>
                 )}
               </div>
-            )}
+              {isReplyLetterMode && (
+                <div>
+                  <TextInput
+                    id="reply-message"
+                    labelText="Reply Message"
+                    placeholder="Type your reply here"
+                    value={replyMessage}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setReplyMessage(e.target.value)
+                    }
+                  />
+                  <FileUploader
+                    labelTitle="Attachments"
+                    buttonLabel="Add files"
+                    multiple={true}
+                    size="sm"
+                    filenameStatus="edit"
+                    buttonKind="ghost"
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                      setAttachments(Array.from(event.target.files || []))
+                    }
+                  />
+                  {isReplyLetterMode == true && (
+                    <>
+                      <IconButton
+                        label="Cancel"
+                        kind="ghost"
+                        size="md"
+                        onClick={handleCancelReplyLetter}
+                      >
+                        <CloseLarge size={16} />
+                      </IconButton>
+                      <IconButton
+                        label="Send"
+                        kind="ghost"
+                        size="md"
+                        onClick={handleSubmitReplyLetter}
+                      >
+                        <SendFilled size={16} />
+                      </IconButton>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <div>

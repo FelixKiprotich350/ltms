@@ -183,7 +183,7 @@ export default function InitialSetup() {
         body: formDataToSend,
         headers: {
           // 'Content-Type': 'multipart/form-data' is NOT needed; the browser sets it automatically
-          Authorization: `Bearer YOUR_ACCESS_TOKEN`, // If authentication is required
+          // Authorization: `Bearer YOUR_ACCESS_TOKEN`, // If authentication is required
         },
       });
 
@@ -347,7 +347,7 @@ export default function InitialSetup() {
             <Button kind="danger--primary" onClick={handleSaveDraft}>
               Save as Draft
             </Button>
-            <Button kind="success" onClick={handleSubmit}>
+            <Button kind="ghost--tertiary" onClick={handleSubmit}>
               Send Request
             </Button>
           </div>

@@ -68,6 +68,7 @@ export const authOptions: NextAuthOptions = {
 
         return customUser;
       },
+      
     }),
   ],
   pages: {

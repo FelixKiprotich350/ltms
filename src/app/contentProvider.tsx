@@ -2,7 +2,7 @@
 
 import React, { ReactNode, useEffect, useState } from "react";
 import { Theme, Content } from "@carbon/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 import LayoutHeaderComponent from "./layoutComponents/layouHeader";
@@ -26,12 +26,16 @@ const ContentProviders: React.FC<ProvidersProps> = ({ children }) => {
   const { data: session, status, update } = useSession();
   const [isSideNavExpanded, setIsSideNavExpanded] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-
     if (status === "unauthenticated") {
       console.log("------------Unauthenticated");
-      router.replace("/signing");
+      const callbackUrl = searchParams.get("callbackUrl");
+      console.log("------------Unauthenticated", callbackUrl);
+
+      // const callbackUrl = encodeURIComponent(window.location.pathname);
+      router.replace(`/signing?callbackUrl=${callbackUrl}`);
     }
   }, [status]);
   useEffect(() => {

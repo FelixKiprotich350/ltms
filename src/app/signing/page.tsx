@@ -15,7 +15,7 @@ import {
 } from "@carbon/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
-import router from "next/router";
+// import router from "next/router";
 
 export default function LoginComponent() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -26,14 +26,13 @@ export default function LoginComponent() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<number>(0); // Track active tab (login or signup)
-  // const router = useRouter();
   const searchParams = useSearchParams();
 
-  useEffect(() => {
-    if (searchParams.get("reload") === "true") {
-      window.location.replace("/signing"); // Forces a full reload
-    }
-  }, [searchParams]);
+  // useEffect(() => {
+  //   if (searchParams.get("reload") === "true") {
+  //     window.location.replace("/signing"); // Forces a full reload
+  //   }
+  // }, [searchParams]);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,17 +41,17 @@ export default function LoginComponent() {
       setError("Both email and password are required.");
       return;
     }
-    // const callbackUrl = router.query.callbackUrl || "/dashboard"; // Default after login
-    // console.log(router);
+    const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
     const result = await signIn("credentials", {
       email,
       password,
-      redirect: true,
-      callbackUrl: "/dashboard",
+      redirect: false,
     });
-    console.log(result);
-    if (result?.ok) {
-      router.push("/dashboard"); // Manually redirect after login
+
+    if (result?.error) {
+      setError("Invalid email or password.");
+    } else {
+      window.location.href = callbackUrl;
     }
   };
 
