@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     const withRelations = url.searchParams.get("withrelations") === "true"; // Convert to boolean
 
     // Get letter UUIDs related to the user
-    const letterUuids = await prisma.letterRecipients.findMany({
+    const letterUuids = await prisma.letterRecipient.findMany({
       where: {
         OR: [
           { RecipientMaster: { recipientType: "DEPARTMENT", departmentUuid } },

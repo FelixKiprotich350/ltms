@@ -124,7 +124,7 @@ model LetterRequest {
   uuid                 String                 @id @default(uuid())
   externalReference    String?
   subject              String
-  body                 String
+  body                 String                 @db.Text
   confidentiality      String
   senderType           String
   rootLetterUuid       String? // Nullable to allow root letters
@@ -141,7 +141,7 @@ model LetterRequest {
   Approvals            Approval[]
   Attachments          Attachment[]
   Logs                 Log[]
-  LetterRecipients     LetterRecipients[]     @relation(name: "LetterstoRecipients")
+  LetterRecipients     LetterRecipient[]      @relation(name: "LetterstoRecipients")
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
   LetterTicket         LetterTicket[]         @relation(name: "LetterTicket")
@@ -165,7 +165,7 @@ model DraftedLetterRequest {
   Approvals            Approval[]
   Attachments          Attachment[]
   Logs                 Log[]
-  LetterRecipients     LetterRecipients[]     @relation(name: "LetterstoRecipients")
+  LetterRecipients     LetterRecipient[]      @relation(name: "LetterstoRecipients")
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
 }
@@ -180,10 +180,10 @@ model RecipientsMaster {
   updatedAt           DateTime                @updatedAt
   DepartmentRecipient OrganisationDepartment? @relation(name: "Departmentofrecipient", fields: [departmentUuid], references: [uuid])
   UserPersonRecipient LtmsUser?               @relation(name: "UserPerosnofrecipient", fields: [userPersonUuid], references: [uuid])
-  LetterRecipients    LetterRecipients[]
+  LetterRecipients    LetterRecipient[]
 }
 
-model LetterRecipients {
+model LetterRecipient {
   uuid                 String                 @id @default(uuid()) // UUID as a unique field
   letterUuid           String
   recipientUuid        String

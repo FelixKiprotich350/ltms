@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const withRelations = url.searchParams.get("withrelations") === "true";
 
-    const recipients = await prisma.letterRecipients.findMany({
+    const recipients = await prisma.letterRecipient.findMany({
       where: {
         OR: [
           {

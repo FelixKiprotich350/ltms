@@ -1,0 +1,91 @@
+.letterPageContainer {
+  display: flex;
+  gap: 1rem;
+  height: calc(100vh - 60px);
+  padding: 8px;
+  overflow: hidden;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 4px;
+  border-color: lightgray;
+}
+
+.left40Column {
+  flex: 0 0 40%;
+  border-right: 1px solid #ddd;
+  padding-right: 1rem;
+  overflow: auto;
+}
+
+.right60Column {
+  flex: 0 0 60%;
+  padding-left: 0.5rem;
+  overflow: auto;
+}
+
+.pageTitleHeader {
+  text-align: left;
+  font-weight: bold;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.letterListContainer {
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+  margin-top: 8px;
+}
+
+.letterListItemContainer {
+  border: 1px solid #ddd;
+  padding: 4px;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+/* Add dynamic styling via JavaScript */
+.letterListItemContainer.selected {
+  background-color: #f3f3f3;
+}
+
+.letterSubjectHeading {
+  font-weight: 500;
+  text-transform: uppercase;
+  text-decoration: underline;
+}
+.letterBodyContainer {
+  border-width: 1px;
+  border-style: solid;
+  border-color: lightgray;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.botyText {
+  font-size: small;
+}
+
+.noLetterContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 200px);
+}
+
+.imageIllustration {
+  width: 300px;
+  margin-top: 20px;
+}
+.customSearchTextInput input {
+  border-radius: 16px;
+  outline: none !important; /* Remove default focus outline */
+  box-shadow: none !important; /* Remove Carbon's blue focus ring */
+  border: 1px solid #ccc; /* Optional: Adjust border */
+}
+
+.customSearchTextInput input:focus {
+  border: 1px solid #888; /* Optional: Custom border on focus */
+  box-shadow: none !important;
+}

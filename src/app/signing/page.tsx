@@ -26,7 +26,7 @@ export default function LoginComponent() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<number>(0); // Track active tab (login or signup)
-
+  // const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -42,6 +42,8 @@ export default function LoginComponent() {
       setError("Both email and password are required.");
       return;
     }
+    // const callbackUrl = router.query.callbackUrl || "/dashboard"; // Default after login
+    // console.log(router);
     const result = await signIn("credentials", {
       email,
       password,

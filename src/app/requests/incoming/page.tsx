@@ -15,10 +15,10 @@ import {
   LtmsUser,
   OrganisationDepartment,
 } from "@prisma/client";
-import "./page.css";
 import { useNotification } from "app/layoutComponents/notificationProvider";
 import { LeterRecipientReceivedStatus } from "lib/constants";
 import { CloseLarge, SendFilled } from "@carbon/icons-react";
+import "../letterpagelayout.css";
 
 interface LetterRequestModel extends LetterRequest {
   SenderDepartment: OrganisationDepartment;
@@ -33,7 +33,6 @@ export default function IncomingLetterRequests() {
     useState<LetterRequestModel | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [replyMessage, setReplyMessage] = useState("");
-  const [replySenderType, setReplySenderType] = useState("");
   const [attachments, setAttachments] = useState<File[]>([]);
   const [isReplyLetterMode, setIsReplyLetterMode] = useState(false);
 
@@ -130,7 +129,6 @@ export default function IncomingLetterRequests() {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("replyMessage", replyMessage);
-      formDataToSend.append("senderType", replySenderType);
       // Append multiple attachments
       attachments.forEach((item) => {
         formDataToSend.append("attachments[]", item);
@@ -175,71 +173,30 @@ export default function IncomingLetterRequests() {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        gap: "1rem",
-        height: "calc(100vh - 60px)",
-        padding: "8px",
-        overflow: "hidden",
-        borderStyle: "solid",
-        borderWidth: "1px",
-        borderRadius: "4px",
-        borderColor: "lightgray",
-      }}
-    >
+    <div className="letterPageContainer">
       {/* Left Column - List of Requests */}
-      <div
-        style={{
-          flex: "0 0 40%",
-          borderRight: "1px solid #ddd",
-          paddingRight: "1rem",
-          overflow: "auto",
-        }}
-      >
-        <p
-          style={{
-            textAlign: "left",
-            fontWeight: "bold",
-            fontSize: "1rem",
-            marginBottom: "4px",
-          }}
-        >
-          Incoming Letters
-        </p>
+      <div className="left40Column">
+        <p className="pageTitleHeader">Incoming Letters</p>
         <TextInput
           id="search-letters"
           labelText=""
           placeholder="Search by Subject or Body"
           value={searchTerm}
           onChange={handleSearchChange}
-          className="custom-text-input"
+          className="customSearchTextInput"
         />
 
         {isLoading ? (
           <InlineLoading description="Loading Requests..." />
         ) : (
-          <div
-            style={{
-              maxHeight: "calc(100vh - 160px)",
-              overflowY: "auto",
-              marginTop: "8px",
-            }}
-          >
+          <div className="letterListContainer">
             {filteredRequests.map((item) => (
               <div
                 key={item.uuid}
                 onClick={() => setSelectedRequest(item)}
-                style={{
-                  border: "1px solid #ddd",
-                  padding: "4px",
-                  marginBottom: "0.5rem",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  backgroundColor:
-                    selectedRequest?.uuid === item.uuid ? "#f3f3f3" : "white",
-                  transition: "background 0.2s",
-                }}
+                className={`letterListItemContainer ${
+                  selectedRequest?.uuid == item.uuid ? "selected" : ""
+                }`}
               >
                 {/* First Line - Subject */}
                 <h6 style={{ margin: "0 0 2px" }}>{item.subject}</h6>
@@ -289,16 +246,11 @@ export default function IncomingLetterRequests() {
       </div>
 
       {/* Right Column - Details Panel */}
-      <div style={{ flex: "0 0 60%", paddingLeft: "1rem", overflow: "auto" }}>
+      <div className="right60Column">
         {selectedRequest ? (
           <div>
-            <p style={{ fontSize: "1.5rem" }}>
-              <strong>Subject: {selectedRequest.subject}</strong>
-            </p>
-            {/* 
-            <p>
-              <strong>Subject:</strong> {selectedRequest.subject}
-            </p> */}
+            <p className="letterSubjectHeading">{selectedRequest.subject}</p>
+
             <p>
               <strong>Sender:</strong> {selectedRequest.SenderDepartment?.name}(
               {selectedRequest.SenderUser?.email})
@@ -314,9 +266,13 @@ export default function IncomingLetterRequests() {
               <strong>Created At:</strong>
               {new Date(selectedRequest.createdAt).toLocaleString()}
             </p>
-            <p>
-              <strong>Body:</strong> {selectedRequest.body}
-            </p>
+            <div className="letterBodyContainer">
+              <p className="botyText">{selectedRequest.body}</p>
+              <div>
+                <hr />
+                Attachments
+              </div>
+            </div>
             <div>
               {selectedRequest.status ===
               LeterRecipientReceivedStatus.PENDING ? (
@@ -342,26 +298,6 @@ export default function IncomingLetterRequests() {
             </div>
             {isReplyLetterMode && (
               <div>
-                <Select
-                  id="senderType"
-                  name="senderType"
-                  labelText="Sender Type"
-                  value={replySenderType}
-                  onChange={(e: any) => setReplySenderType(e?.target?.value)}
-                  style={{ marginBottom: "1rem" }}
-                >
-                  <SelectItem
-                    text="Select Sender Type"
-                    value=""
-                    key="default"
-                  />
-                  <SelectItem
-                    text="Department"
-                    value="DEPARTMENT"
-                    key="Department"
-                  />
-                  <SelectItem text="Person" value="PERSON" key="Person" />
-                </Select>
                 <TextInput
                   id="reply-message"
                   labelText="Reply Message"
@@ -411,21 +347,11 @@ export default function IncomingLetterRequests() {
               Select a Letter to view more details
             </p>
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "calc(100vh - 200px)",
-              }}
-            >
+            <div className="noLetterContainer">
               <img
                 src="/openletter.jpg"
                 alt="Open Letter"
-                style={{
-                  width: "300px",
-                  marginTop: "20px",
-                }}
+                className="imageIllustration"
               />
             </div>
           </div>

@@ -80,7 +80,9 @@ const LayoutHeaderComponent: React.FC<LeftPanelMenuProps> = ({
                 aria-label={"Welcome " + currentUser.Person?.firstName}
                 tooltipAlignment="center"
               >
-                <label>{currentUser.Person?.firstName}</label>
+                <label>{`${currentUser.Person?.firstName} (${
+                  currentUser.OrganisationDepartment?.name?.split(" ")[0]
+                })`}</label>
               </HeaderGlobalAction>
               <HeaderGlobalAction
                 aria-label="Notifications"

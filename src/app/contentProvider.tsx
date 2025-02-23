@@ -28,14 +28,10 @@ const ContentProviders: React.FC<ProvidersProps> = ({ children }) => {
   const router = useRouter();
 
   useEffect(() => {
+
     if (status === "unauthenticated") {
       console.log("------------Unauthenticated");
-      const isforcedsignin = localStorage.getItem("isforcedsignin");
-      if (isforcedsignin !== null) {
-        localStorage.setItem("isforcedsignin", true.toString());
-        // router.replace("/signing"); // Directly redirect without reloading
-        window.location.href = "/signing"; // Reload the page
-      }
+      router.replace("/signing");
     }
   }, [status]);
   useEffect(() => {

@@ -1,4 +1,4 @@
-import NextAuth, { Session } from "next-auth";
+import NextAuth, { ExtendedUser, Session } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { NextAuthOptions } from "next-auth";
 import prisma from "lib/prisma";
@@ -76,11 +76,11 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
-    maxAge: 60 * 5, // 5 minutes
-    updateAge: 60 * 2, // Refresh JWT every minute
+    maxAge: 60 * 10, // 10 minutes
+    updateAge: 0, // Refresh JWT every minute
   },
   jwt: {
-    maxAge: 60 * 5, // 5 minutes
+    maxAge: 60 * 10, // 10 minutes
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -97,15 +97,22 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.email = token.email || "";
-        session.user.uuid = token.uuid as string;
-        session.user.UserRole = token.role as UserRole;
-        session.user.OrganisationDepartment =
-          token.department as OrganisationDepartment;
-        session.user.Person = token.person as Person;
+        session.user = {
+          ...session.user,
+          id: token.uuid as string,
+          uuid: token.uuid as string,
+          UserRole: token.role as UserRole,
+          OrganisationDepartment: token.department as OrganisationDepartment,
+          Person: token.person as Person,
+        } as ExtendedUser;
       }
       return session;
     },
+    // async redirect({ url, baseUrl }) {
+    //   console.log(url, baseUrl);
+    //   // Preserve callbackUrl if present, otherwise go to home page
+    //   return url.startsWith(baseUrl) ? url : baseUrl;
+    // },
   },
 };
 

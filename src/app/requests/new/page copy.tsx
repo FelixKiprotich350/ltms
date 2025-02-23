@@ -197,7 +197,7 @@ export default function InitialSetup() {
   };
 
   return (
-    <div className="letterPageContainer">
+    <div>
       <h3>Add New Request</h3>
       <div style={styles.container}>
         <div style={styles.formContainer}>

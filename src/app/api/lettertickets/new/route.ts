@@ -113,7 +113,7 @@ export async function POST(request: Request) {
       // Create Recipients
       await Promise.all(
         recipientDepartments.map((recipientUuid) =>
-          tx.letterRecipients.create({
+          tx.letterRecipient.create({
             data: {
               recipientUuid,
               letterUuid: letterRequest.uuid,

@@ -6,11 +6,16 @@ import mime from "mime";
 import { getServerSession } from "next-auth";
 import { authOptions } from "app/api/auth/[...nextauth]/route";
 import { LetterSenderRecipientType } from "lib/constants";
+import { LetterRecipient, RecipientsMaster } from "@prisma/client";
 
 interface FileMeta {
   fileUrl: string;
   fileName: string;
   fileType: string;
+}
+
+interface LetterRecipientModel extends LetterRecipient {
+  RecipientMaster: RecipientsMaster;
 }
 export async function POST(
   request: Request,
@@ -51,13 +56,39 @@ export async function POST(
     const parentletter = await prisma.letterRequest.findUnique({
       where: { uuid: parentletteruuid }, // Assuming email is unique
       include: {
-        LetterRecipients: true,
+        LetterRecipients: {
+          include: {
+            RecipientMaster: true,
+          },
+        },
       },
     });
 
     if (!parentletter) {
       return NextResponse.json(
         "The Parent Letter you are replying does not Exist!",
+        {
+          status: 400,
+        }
+      );
+    }
+
+    // Extract the parent letter
+    const userAsRecipient = (
+      parentletter.LetterRecipients as Array<LetterRecipientModel>
+    ).find(
+      (item) =>
+        (item.RecipientMaster?.userPersonUuid == session.user.uuid &&
+          item.RecipientMaster?.recipientType ==
+            LetterSenderRecipientType.PERSON) ||
+        (item.RecipientMaster?.userPersonUuid == session.user.departmentUuid &&
+          item.RecipientMaster?.recipientType ==
+            LetterSenderRecipientType.DEPARTMENT)
+    );
+
+    if (!userAsRecipient) {
+      return NextResponse.json(
+        "The User was not a recipient of the current letter!",
         {
           status: 400,
         }
@@ -133,7 +164,7 @@ export async function POST(
         data: {
           subject: parentletter.subject,
           body,
-          senderType: parentletter.senderType, ////////////////////////////to work on tomorrow
+          senderType: userAsRecipient.RecipientMaster.recipientType,
           externalReference: null,
           letterCategoryUuid: parentletter.letterCategoryUuid,
           senderUserUuid: user.uuid,
@@ -148,7 +179,7 @@ export async function POST(
       });
 
       // Create Recipients
-      await tx.letterRecipients.create({
+      await tx.letterRecipient.create({
         data: {
           recipientUuid: parentLetterSenderAsRecipient.uuid,
           letterUuid: letterRequest.uuid,
