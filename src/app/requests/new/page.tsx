@@ -12,8 +12,8 @@ import {
 } from "@carbon/react";
 import { OrganisationDepartment, RecipientsMaster } from "@prisma/client";
 import { LetterSenderRecipientType } from "lib/constants";
+import "../letterpagelayout.css";
 
-//65535
 export interface RecipientDepartmentModel {
   uuid: string;
   recipientType: string;
@@ -108,7 +108,9 @@ export default function InitialSetup() {
       ...prev,
       [name]: value,
     }));
-    setTextCount(value.length);
+    if (name === "letterbody") {
+      setTextCount(value.length);
+    }
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -197,181 +199,157 @@ export default function InitialSetup() {
   };
 
   return (
-    <div className="letterPageContainer">
-      <h3>Add New Request</h3>
-      <div style={styles.container}>
-        <div style={styles.formContainer}>
-          <div style={styles.leftColumn}>
-            <TextInput
-              id="subject"
-              name="subject"
-              labelText="Request Subject"
-              value={formData.subject}
-              onChange={handleInputChange}
-              style={{ marginBottom: "1rem" }}
-            />
-            <TextInput
-              id="externalReference"
-              name="externalReference"
-              labelText="External Reference"
-              value={formData.externalReference}
-              onChange={handleInputChange}
-              style={{ marginBottom: "1rem" }}
-            />
-            <Select
-              id="senderType"
-              name="senderType"
-              labelText="Sender Type"
-              value={formData.senderType}
-              onChange={handleInputChange}
-              style={{ marginBottom: "1rem" }}
-            >
-              <SelectItem text="Select Sender Type" value="" key="default" />
-              <SelectItem
-                text="Department"
-                value="DEPARTMENT"
-                key="Department"
-              />
-              <SelectItem text="Person" value="PERSON" key="Person" />
-            </Select>
-            <TextArea
-              id="letterbody"
-              name="letterbody"
-              labelText="Body/Description"
-              value={formData.letterbody}
-              onChange={handleInputChange}
-              style={styles.textArea}
-            />
-            <label>{`(${textCount}/5000)`}</label>
-          </div>
+    <div className="homeContainer">
+      <div className="fullWidthColumn">
+        <h3>Add New Request</h3>
+      </div>
+      <div className="letterPageContainer">
+        <div className="halfWidthColumn">
+          <TextInput
+            id="subject"
+            name="subject"
+            labelText="Request Subject"
+            value={formData.subject}
+            onChange={handleInputChange}
+            style={{ marginBottom: "1rem" }}
+          />
+          <TextInput
+            id="externalReference"
+            name="externalReference"
+            labelText="External Reference"
+            value={formData.externalReference}
+            onChange={handleInputChange}
+            style={{ marginBottom: "1rem" }}
+          />
 
-          <div style={styles.rightColumn}>
-            <Select
-              id="confidentiality"
-              name="confidentiality"
-              labelText="Letter Confidentiality"
-              value={formData.confidentiality}
-              onChange={handleInputChange}
-              style={{ marginBottom: "1rem" }}
-            >
+          <TextArea
+            id="letterbody"
+            name="letterbody"
+            labelText="Body/Description"
+            value={formData.letterbody}
+            onChange={handleInputChange}
+            style={styles.textArea}
+          />
+          <label>{`(${textCount}/5000)`}</label>
+        </div>
+        <div className="halfWidthColumn">
+          <Select
+            id="senderType"
+            name="senderType"
+            labelText="Sender Type"
+            value={formData.senderType}
+            onChange={handleInputChange}
+            style={{ marginBottom: "1rem" }}
+          >
+            <SelectItem text="Select Sender Type" value="" key="default" />
+            <SelectItem text="Department" value="DEPARTMENT" key="Department" />
+            <SelectItem text="Person" value="PERSON" key="Person" />
+          </Select>
+          <Select
+            id="categoryUuid"
+            name="categoryUuid"
+            labelText="Letter Category"
+            value={formData.categoryUuid}
+            onChange={handleInputChange}
+            style={{ marginBottom: "1rem" }}
+          >
+            <SelectItem text="Select a Category" value="" key="default" />
+            {categories.map((category) => (
               <SelectItem
-                text="Select a Confidentiality"
-                value=""
-                key="default"
+                key={category.uuid}
+                text={category.name}
+                value={category.uuid}
               />
-              <SelectItem text="Standard" value="standard" key="standard" />
-              <SelectItem
-                text="Confidential"
-                value="confidential"
-                key="confidential"
-              />
-            </Select>
-            <Select
-              id="categoryUuid"
-              name="categoryUuid"
-              labelText="Recipient Category"
-              value={formData.categoryUuid}
-              onChange={handleInputChange}
-              style={{ marginBottom: "1rem" }}
-            >
-              <SelectItem text="Select a Category" value="" key="default" />
-              {categories.map((category) => (
-                <SelectItem
-                  key={category.uuid}
-                  text={category.name}
-                  value={category.uuid}
-                />
-              ))}
-            </Select>
+            ))}
+          </Select>
 
-            <FilterableMultiSelect
-              id="recipientDepartments"
-              label="Recipient Departments"
-              titleText="Recipient Departments"
-              items={departments.map((dept) => ({
+          <FilterableMultiSelect
+            id="recipientDepartments"
+            label="Recipient Departments"
+            titleText="Recipient Departments"
+            items={departments.map((dept) => ({
+              id: dept.uuid,
+              label: dept.DepartmentRecipient?.name,
+            }))}
+            itemToString={(item: any) => item.label}
+            selectedItems={departments
+              .filter((dept) =>
+                formData.recipientDepartments.includes(dept.uuid)
+              )
+              .map((dept) => ({
                 id: dept.uuid,
                 label: dept.DepartmentRecipient?.name,
               }))}
-              itemToString={(item: any) => item.label}
-              selectedItems={departments
-                .filter((dept) =>
-                  formData.recipientDepartments.includes(dept.uuid)
-                )
-                .map((dept) => ({
-                  id: dept.uuid,
-                  label: dept.DepartmentRecipient?.name,
-                }))}
-              onChange={(event: any) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  recipientDepartments: event.selectedItems.map(
-                    (item: any) => item.id
-                  ),
-                }))
-              }
+            onChange={(event: any) =>
+              setFormData((prev) => ({
+                ...prev,
+                recipientDepartments: event.selectedItems.map(
+                  (item: any) => item.id
+                ),
+              }))
+            }
+          />
+
+          <div style={{ marginBottom: "1rem" }}>
+            <label
+              htmlFor="fileUpload"
+              style={{
+                fontWeight: "bold",
+                display: "block",
+                marginBottom: "0.5rem",
+              }}
+            >
+              Add File Attachments
+            </label>
+            <input
+              type="file"
+              id="fileUpload"
+              accept=".pdf" //".pdf, .docx"
+              multiple
+              onChange={handleFileUpload}
             />
+            {formData.error && (
+              <p style={{ color: "red", marginTop: "0.5rem" }}>
+                {formData.error}
+              </p>
+            )}
 
-            <div style={{ marginBottom: "1rem" }}>
-              <label
-                htmlFor="fileUpload"
-                style={{
-                  fontWeight: "bold",
-                  display: "block",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                Add File Attachments
-              </label>
-              <input
-                type="file"
-                id="fileUpload"
-                accept=".pdf" //".pdf, .docx"
-                multiple
-                onChange={handleFileUpload}
-              />
-              {formData.error && (
-                <p style={{ color: "red", marginTop: "0.5rem" }}>
-                  {formData.error}
-                </p>
-              )}
+            {formData.attachments.length > 0 && (
+              <div style={styles.fileListContainer}>
+                <ul style={styles.fileList}>
+                  {formData.attachments.map((file, index) => (
+                    <li key={index} style={styles.fileItem}>
+                      {file.name}
+                      <div>
+                        <Button
+                          kind="ghost"
+                          size="sm"
+                          onClick={() => handlePreviewFile(file)}
+                        >
+                          Preview
+                        </Button>
+                        <Button
+                          kind="danger--tertiary"
+                          size="sm"
+                          onClick={() => handleRemoveFile(index)}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
 
-              {formData.attachments.length > 0 && (
-                <div style={styles.fileListContainer}>
-                  <ul style={styles.fileList}>
-                    {formData.attachments.map((file, index) => (
-                      <li key={index} style={styles.fileItem}>
-                        {file.name}
-                        <div>
-                          <Button
-                            kind="ghost"
-                            size="sm"
-                            onClick={() => handlePreviewFile(file)}
-                          >
-                            Preview
-                          </Button>
-                          <Button
-                            kind="danger--tertiary"
-                            size="sm"
-                            onClick={() => handleRemoveFile(index)}
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            <div style={styles.buttonContainer}>
-              <Button kind="danger--primary" onClick={handleSaveDraft}>
-                Save as Draft
-              </Button>
-              <Button kind="success" onClick={handleSubmit}>
-                Send Request
-              </Button>
-            </div>
+          <div style={styles.buttonContainer}>
+            <Button kind="danger--primary" onClick={handleSaveDraft}>
+              Save as Draft
+            </Button>
+            <Button kind="success" onClick={handleSubmit}>
+              Send Request
+            </Button>
           </div>
         </div>
       </div>
