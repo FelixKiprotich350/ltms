@@ -8,7 +8,7 @@ import {
   IconButton,
   SelectItem,
   Button,
-  Select,
+  TextArea,
 } from "@carbon/react";
 import {
   LetterRequest,
@@ -18,7 +18,7 @@ import {
 import { useNotification } from "app/layoutComponents/notificationProvider";
 import { LeterRecipientReceivedStatus } from "lib/constants";
 import { CloseLarge, SendFilled } from "@carbon/icons-react";
-import "../letterpagelayout.css";
+import "@/styles/chatPageLayout.css";
 
 interface LetterRequestModel extends LetterRequest {
   SenderDepartment: OrganisationDepartment;
@@ -120,6 +120,14 @@ export default function IncomingLetterRequests() {
     setIsReplyLetterMode(false);
     setAttachments([]);
     setReplyMessage("");
+  };
+  const handleReplyMessageInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { value } = e.target;
+    setReplyMessage(value);
   };
   const handleSubmitReplyLetter = async () => {
     if (!selectedRequest) return;
@@ -248,71 +256,69 @@ export default function IncomingLetterRequests() {
       {/* Right Column - Details Panel */}
       <div className="right60Column">
         {selectedRequest ? (
-          <div>
-            <div>
+          <div className="letterContainer">
+            <div className="letterHeader">
               <p className="letterSubjectHeading">{selectedRequest.subject}</p>
-
               <p>
-                <strong>Sender:</strong>{" "}
+                <strong>Sender:</strong>
                 {selectedRequest.SenderDepartment?.name}(
                 {selectedRequest.SenderUser?.email})
               </p>
               <p>
-                <strong>Confidentiality:</strong>
+                <strong>Confidentiality:</strong>{" "}
                 {selectedRequest.confidentiality.toUpperCase()}
               </p>
               <p>
                 <strong>Status:</strong> {selectedRequest.status}
               </p>
               <p>
-                <strong>Created At:</strong>
+                <strong>Created At:</strong>{" "}
                 {new Date(selectedRequest.createdAt).toLocaleString()}
               </p>
             </div>
+
             <div className="letterBodyContainer">
-              <p className="botyText">{selectedRequest.body}</p>
+              <p className="bodyText">{selectedRequest.body}</p>
               <div>
                 <hr />
                 Attachments
               </div>
             </div>
-            <div>
-              <div>
-                {selectedRequest.status ===
-                LeterRecipientReceivedStatus.PENDING ? (
-                  <Button
-                    kind="primary"
-                    size="md"
-                    onClick={handleReceiveLetter}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <InlineLoading description="Receiving..." />
-                    ) : (
-                      "Receive Letter"
-                    )}
-                  </Button>
-                ) : isReplyLetterMode == false ? (
-                  <Button kind="primary" size="md" onClick={handleReplyLetter}>
-                    Reply
-                  </Button>
-                ) : (
-                  <></>
-                )}
-              </div>
+
+            <div className="letterFooter">
+              {selectedRequest.status ===
+              LeterRecipientReceivedStatus.PENDING ? (
+                <Button
+                  kind="ghost"
+                  size="sm"
+                  onClick={handleReceiveLetter}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <InlineLoading description="Receiving..." />
+                  ) : (
+                    "Receive Letter"
+                  )}
+                </Button>
+              ) : !isReplyLetterMode ? (
+                <Button kind="tertiary" size="md" onClick={handleReplyLetter}>
+                  Reply
+                </Button>
+              ) : null}
+
               {isReplyLetterMode && (
-                <div>
-                  <TextInput
+                <div className="replyContainer">
+                  <TextArea
                     id="reply-message"
-                    labelText="Reply Message"
-                    placeholder="Type your reply here"
+                    name="reply-message"
+                    labelText="Body/Description"
                     value={replyMessage}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setReplyMessage(e.target.value)
-                    }
+                    onChange={handleReplyMessageInputChange}
+                    className="replyTextArea"
                   />
+                  <label>{`(${replyMessage.length}/5000)`}</label>
                   <FileUploader
-                    labelTitle="Attachments"
+                    // labelTitle="Attachments"
                     buttonLabel="Add files"
                     multiple={true}
                     size="sm"
@@ -322,26 +328,24 @@ export default function IncomingLetterRequests() {
                       setAttachments(Array.from(event.target.files || []))
                     }
                   />
-                  {isReplyLetterMode == true && (
-                    <>
-                      <IconButton
-                        label="Cancel"
-                        kind="ghost"
-                        size="md"
-                        onClick={handleCancelReplyLetter}
-                      >
-                        <CloseLarge size={16} />
-                      </IconButton>
-                      <IconButton
-                        label="Send"
-                        kind="ghost"
-                        size="md"
-                        onClick={handleSubmitReplyLetter}
-                      >
-                        <SendFilled size={16} />
-                      </IconButton>
-                    </>
-                  )}
+                  <div className="replyActions">
+                    <IconButton
+                      label="Cancel"
+                      kind="ghost"
+                      size="md"
+                      onClick={handleCancelReplyLetter}
+                    >
+                      <CloseLarge size={16} />
+                    </IconButton>
+                    <IconButton
+                      label="Send"
+                      kind="ghost"
+                      size="md"
+                      onClick={handleSubmitReplyLetter}
+                    >
+                      <SendFilled size={16} />
+                    </IconButton>
+                  </div>
                 </div>
               )}
             </div>

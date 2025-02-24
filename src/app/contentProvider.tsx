@@ -31,7 +31,7 @@ const ContentProviders: React.FC<ProvidersProps> = ({ children }) => {
   useEffect(() => {
     if (status === "unauthenticated") {
       console.log("------------Unauthenticated");
-      const callbackUrl = searchParams.get("callbackUrl");
+      const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
       console.log("------------Unauthenticated", callbackUrl);
 
       // const callbackUrl = encodeURIComponent(window.location.pathname);

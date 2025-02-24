@@ -3,7 +3,7 @@
 import React, { FC, useState, useEffect } from "react";
 import { TextInput, InlineLoading } from "@carbon/react";
 import { LtmsUser, OrganisationDepartment } from "@prisma/client";
-import "../letterpagelayout.css";
+import "@/styles/chatPageLayout.css";
 
 interface LetterRequestModel {
   uuid: string;

@@ -75,6 +75,8 @@
   text-decoration: underline;
 }
 .letterBodyContainer {
+  flex-grow: 1; /* Makes it take up available space */
+  overflow-y: auto; /* Enables vertical scrolling */
   border-width: 1px;
   border-style: solid;
   border-color: lightgray;
@@ -82,7 +84,12 @@
   border-radius: 4px;
 }
 
-.botyText {
+/* .letterBodyContainer {
+  padding: 16px;
+  background: white;
+} */
+
+.bodyText {
   font-size: small;
 }
 
@@ -107,4 +114,65 @@
 .customSearchTextInput input:focus {
   border: 1px solid #888; /* Optional: Custom border on focus */
   box-shadow: none !important;
+}
+
+.letterContainer {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 64px); /* Full height */
+}
+
+.letterHeader {
+  flex-shrink: 0; /* Keep it fixed */
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-bottom: 4px;
+  padding-top: 4px;
+  /* background: #d1c9c9; */
+  border-bottom: 1px solid #ccc;
+}
+
+.letterHeader p {
+  font-size: 14px;
+}
+
+.letterFooter {
+  flex-shrink: 0; /* Keep it fixed */
+  padding: 4px;
+  background: #f4f4f4;
+  border-top: 1px solid #ccc;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.replyContainer {
+  width: 100%;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.replyActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.replyTextArea {
+  max-height: 230px;
+  min-height: 200px;
+  overflow: auto;
+  /* resize: vertical; */
+  margin-bottom: 8px;
+}
+
+.threadListItemContainer {
+  border: 1px solid #ddd;
+  padding: 4px;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
 }

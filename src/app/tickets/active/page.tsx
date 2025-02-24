@@ -3,9 +3,11 @@
 import React, { FC, useState, useEffect } from "react";
 import { TextInput, InlineLoading } from "@carbon/react";
 import { LetterRequest, LetterTicket } from "@prisma/client";
+import "@/styles/chatPageLayout.css";
 
 interface LetterTicketModel extends LetterTicket {
   Letter: LetterRequest;
+  Thread?: LetterRequest[];
 }
 
 export default function ActiveLetterTickets() {
@@ -39,33 +41,35 @@ export default function ActiveLetterTickets() {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
+  const handleDivClick = async (item: LetterTicketModel) => {
+    try {
+      const response = await fetch(`/api/lettertickets/thread/${item.uuid}`);
+      if (!response.ok) {
+        console.error("Failed to fetch ticket thread");
+        return;
+      }
+      const data = await response.json();
+      const ticket = item;
+      ticket.Thread = data?.RootChildLetters as LetterRequest[];
+      ticket.Thread.push(item.Letter);
+      setSelectedRequest(item);
+
+      console.log("Updated Request:", selectedRequest);
+    } catch (error) {
+      console.error("Error fetching ticket thread:", error);
+    }
+  };
 
   const filteredTickets = tickets.filter((item) =>
     item.ticketNumber.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div
-      style={{
-        display: "flex",
-        gap: "1rem",
-        height: "calc(100vh - 60px)",
-        padding: "8px",
-        overflow: "hidden",
-        borderStyle: "solid",
-        borderWidth: "1px",
-        borderRadius: "4px",
-        borderColor: "lightgray",
-      }}
-    >
+    <div className="letterPageContainer"
+     >
       {/* Left Column - List of Requests */}
       <div
-        style={{
-          flex: "0 0 40%",
-          borderRight: "1px solid #ddd",
-          paddingRight: "1rem",
-          overflow: "auto",
-        }}
+        className="left40Column"
       >
         <p
           style={{
@@ -99,7 +103,7 @@ export default function ActiveLetterTickets() {
             {filteredTickets.map((item) => (
               <div
                 key={item.uuid}
-                onClick={() => setSelectedRequest(item)}
+                onClick={(e) => handleDivClick(item)}
                 style={{
                   border: "1px solid #ddd",
                   padding: "4px",
@@ -138,7 +142,7 @@ export default function ActiveLetterTickets() {
       </div>
 
       {/* Right Column - Details Panel */}
-      <div style={{ flex: "0 0 60%", paddingLeft: "1rem", overflow: "auto" }}>
+      <div className="right60Column">
         {selectedRequest ? (
           <div>
             <p style={{ fontSize: "1.5rem" }}>
@@ -147,15 +151,20 @@ export default function ActiveLetterTickets() {
 
             <p>
               <strong>Ticket No:</strong>
-              {selectedRequest.ticketNumber.toUpperCase()}
+              {selectedRequest.ticketNumber?.toUpperCase()}
             </p>
             <p>
               <strong>Created At:</strong>
               {new Date(selectedRequest.createdAt).toLocaleString()}
             </p>
             <p>
-              <strong>Comments:</strong> {selectedRequest.uuid}
+              <strong>Conversation:</strong> 
             </p>
+            <div className="threadContainer">
+              {selectedRequest.Thread?.map((item: LetterRequest) => (
+                <div className="threadListItemContainer">{item.subject}</div>
+              ))}
+            </div>
           </div>
         ) : (
           <div>

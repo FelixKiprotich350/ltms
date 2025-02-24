@@ -12,7 +12,7 @@ import {
 } from "@carbon/react";
 import { OrganisationDepartment, RecipientsMaster } from "@prisma/client";
 import { LetterSenderRecipientType } from "lib/constants";
-import "../letterpagelayout.css";
+import "@/styles/chatPageLayout.css";
 
 export interface RecipientDepartmentModel {
   uuid: string;
@@ -55,7 +55,6 @@ export default function InitialSetup() {
   );
   const [categories, setCategories] = useState<LetterCategory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [textCount, setTextCount] = useState(0);
 
   const fetchRecipients = async () => {
     setIsLoading(true);
@@ -108,9 +107,6 @@ export default function InitialSetup() {
       ...prev,
       [name]: value,
     }));
-    if (name === "letterbody") {
-      setTextCount(value.length);
-    }
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -230,7 +226,7 @@ export default function InitialSetup() {
             onChange={handleInputChange}
             style={styles.textArea}
           />
-          <label>{`(${textCount}/5000)`}</label>
+          <label>{`(${formData.letterbody.length}/5000)`}</label>
         </div>
         <div className="halfWidthColumn">
           <Select

@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     }
     // const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create TrtUser with the person's UUID
+    // Create LtmsUser with the person's UUID
     const user = await prisma.ltmsUser.create({
       data: {
         username: email,
