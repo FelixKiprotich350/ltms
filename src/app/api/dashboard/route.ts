@@ -7,6 +7,14 @@ export async function GET() {
     const categories = await prisma.letterCategory.count();
     const recentletters = await prisma.letterRequest.findMany({
       where: { rootLetterUuid: null },
+      select: {
+        uuid: true,
+        subject: true,
+        createdAt: true,
+        senderType: true,
+        SenderDepartment: true,
+        SenderUser: true,
+      },
       orderBy: { createdAt: "desc" },
       take: 5,
     });

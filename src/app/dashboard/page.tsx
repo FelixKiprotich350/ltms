@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { use, useEffect, useState } from "react";
 import { Grid, Column, Layer, Tag, Tile } from "@carbon/react";
 import {
   DataTable,
@@ -28,26 +28,71 @@ import {
   LicenseDraft,
   DocumentPdf,
   Categories,
-  Category
+  Category,
 } from "@carbon/icons-react";
-import { blue60, green60, yellow50, teal60 } from "@carbon/react";
 import "./page.css";
+import { useDashboardData } from "./hooks/useDashboardData";
+import { color } from "@carbon/charts";
+import { LetterRequest } from "@prisma/client";
+
+interface DashboardDataModel {
+  categories: number;
+  recentletters: LetterRequest[];
+  letterscount: number;
+  userscount: number;
+  departmentscount: number;
+  ticketscount: number;
+}
+
+interface CountData {
+  title: string;
+  value: string | number | Array<any>;
+  color: string;
+  icon: any;
+}
 
 export default function Dashboard() {
-  const stats = [
-    { title: "Total Letters", value: 1200, color: blue60, icon: DocumentPdf },
-    { title: "Total Tickets", value: 950, color: green60, icon: Task },
-    { title: "Total Users", value: 450, color: yellow50, icon: UserMultiple },
-    { title: "Departments", value: 67, color: teal60, icon: Categories },
-  ];
+  const [dashboardData, setDashboardData] = useState<CountData[]>([]);
+
+  const { data, isLoading, error } = useDashboardData();
+
+  useEffect(() => {
+    const stats = [
+      {
+        title: "Total Letters",
+        value: data?.letterscount ?? 0,
+        color: "#e2d8d8",
+        icon: DocumentPdf,
+      },
+      {
+        title: "Total Tickets",
+        value: data?.ticketscount ?? 0,
+        color: "#e2d8d8",
+        icon: Task,
+      },
+      {
+        title: "Total Users",
+        value: data?.userscount ?? 0,
+        color: "#e2d8d8",
+        icon: UserMultiple,
+      },
+      {
+        title: "Departments",
+        value: data?.departmentscount ?? 0,
+        color: "#e2d8d8",
+        icon: Categories,
+      },
+    ];
+    setDashboardData(stats);
+  }, [dashboardData]);
 
   const headers = ["Name", "Sender", "Status"];
   const rows = [
     { id: "1", name: "Test Subject A", role: "Person", status: "Pending" },
-    { id: "1", name: "Test Subject A", role: "Person", status: "Pending" },
-    { id: "1", name: "Test Subject A", role: "Person", status: "Pending" },
-    { id: "2", name: "Test Subject B", role: "Department", status: "Pending" },
-    { id: "3", name: "Test Subject C", role: "Department", status: "Received" },
+    { id: "2", name: "Test Subject A", role: "Person", status: "Pending" },
+    { id: "3", name: "Test Subject A", role: "Person", status: "Pending" },
+    { id: "4", name: "Test Subject B", role: "Department", status: "Pending" },
+    { id: "5", name: "Test Subject C", role: "Department", status: "Received" },
   ];
 
   const pieData = [
@@ -60,7 +105,7 @@ export default function Dashboard() {
     <Layer className="dashboardContainer">
       {/* Upper Section - Stats */}
       <Grid fullWidth style={{ paddingLeft: "4px", paddingRight: "4px" }}>
-        {stats.map((stat, index) => {
+        {dashboardData.map((stat, index) => {
           const IconComponent = stat.icon;
           return (
             <Column
