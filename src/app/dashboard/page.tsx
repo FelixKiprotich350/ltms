@@ -55,36 +55,37 @@ export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState<CountData[]>([]);
 
   const { data, isLoading, error } = useDashboardData();
-
+  console.log(data);
   useEffect(() => {
-    const stats = [
-      {
-        title: "Total Letters",
-        value: data?.letterscount ?? 0,
-        color: "#e2d8d8",
-        icon: DocumentPdf,
-      },
-      {
-        title: "Total Tickets",
-        value: data?.ticketscount ?? 0,
-        color: "#e2d8d8",
-        icon: Task,
-      },
-      {
-        title: "Total Users",
-        value: data?.userscount ?? 0,
-        color: "#e2d8d8",
-        icon: UserMultiple,
-      },
-      {
-        title: "Departments",
-        value: data?.departmentscount ?? 0,
-        color: "#e2d8d8",
-        icon: Categories,
-      },
-    ];
-    setDashboardData(stats);
-  }, [dashboardData]);
+    if (data) {
+      setDashboardData([
+        {
+          title: "Total Letters",
+          value: data.letterscount ?? 0,
+          color: "#e2d8d8",
+          icon: DocumentPdf,
+        },
+        {
+          title: "Total Tickets",
+          value: data.ticketscount ?? 0,
+          color: "#e2d8d8",
+          icon: Task,
+        },
+        {
+          title: "Total Users",
+          value: data.userscount ?? 0,
+          color: "#e2d8d8",
+          icon: UserMultiple,
+        },
+        {
+          title: "Departments",
+          value: data.departmentscount ?? 0,
+          color: "#e2d8d8",
+          icon: Categories,
+        },
+      ]);
+    }
+  }, [data]);
 
   const headers = ["Name", "Sender", "Status"];
   const rows = [
@@ -187,7 +188,7 @@ export default function Dashboard() {
                               row.status === "Received"
                                 ? "green"
                                 : row.status === "Pending"
-                                ? "yellow"
+                                ? "warm-gray"
                                 : "red"
                             }
                           >

@@ -14,6 +14,7 @@ export async function GET() {
         senderType: true,
         SenderDepartment: true,
         SenderUser: true,
+        status: true,
       },
       orderBy: { createdAt: "desc" },
       take: 5,
@@ -31,7 +32,7 @@ export async function GET() {
       departmentscount,
       ticketscount,
     };
-    return NextResponse.json({ data: resdata }, { status: 200 });
+    return NextResponse.json(resdata, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
