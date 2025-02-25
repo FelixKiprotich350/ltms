@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const categories = await prisma.letterCategory.count();
     const recentletters = await prisma.letterRequest.findMany({
-      where: { rootLetterUuid: null },
+      // where: { rootLetterUuid: null },
       select: {
         uuid: true,
         subject: true,
@@ -23,6 +23,15 @@ export async function GET() {
     const userscount = await prisma.ltmsUser.count();
     const departmentscount = await prisma.organisationDepartment.count();
     const ticketscount = await prisma.letterTicket.count();
+    const lettersperdepartment = await prisma.organisationDepartment.findMany({
+      select: {
+        uuid: true,
+        name: true,
+        _count: {
+          select: { Letters: true }, // Get count of related letters
+        },
+      },
+    });
 
     const resdata = {
       categories,
@@ -31,6 +40,7 @@ export async function GET() {
       userscount,
       departmentscount,
       ticketscount,
+      lettersperdepartment,
     };
     return NextResponse.json(resdata, { status: 200 });
   } catch (error) {

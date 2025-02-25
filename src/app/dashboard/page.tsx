@@ -42,6 +42,11 @@ interface DashboardDataModel {
   userscount: number;
   departmentscount: number;
   ticketscount: number;
+  lettersperdepartment: {
+    uuid: string;
+    name: string;
+    _count: { Letters: number };
+  }[];
 }
 
 interface CountData {
@@ -87,14 +92,15 @@ export default function Dashboard() {
     }
   }, [data]);
 
-  const headers = ["Name", "Sender", "Status"];
-  const rows = [
-    { id: "1", name: "Test Subject A", role: "Person", status: "Pending" },
-    { id: "2", name: "Test Subject A", role: "Person", status: "Pending" },
-    { id: "3", name: "Test Subject A", role: "Person", status: "Pending" },
-    { id: "4", name: "Test Subject B", role: "Department", status: "Pending" },
-    { id: "5", name: "Test Subject C", role: "Department", status: "Received" },
-  ];
+  const headers = ["Subject", "Sender Type", "createdAt"];
+  const rows = data?.recentletters
+    ? data.recentletters.map((letter) => ({
+        id: letter.uuid,
+        subject: letter.subject,
+        senderType: letter.senderType,
+        createdAt: letter.createdAt,
+      }))
+    : [];
 
   const pieData = [
     { group: "Active Users", value: 893 },
@@ -102,6 +108,12 @@ export default function Dashboard() {
     { group: "Pending Requests", value: 55 },
   ];
 
+  const chartData = data?.lettersperdepartment
+    ? data?.lettersperdepartment?.map((dept) => ({
+        group: dept.name,
+        value: dept._count?.Letters ?? 0,
+      }))
+    : [];
   return (
     <Layer className="dashboardContainer">
       {/* Upper Section - Stats */}
@@ -178,22 +190,25 @@ export default function Dashboard() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {rows.map((row) => (
+                    {rows?.map((row) => (
                       <TableRow key={row.id}>
-                        <TableCell>{row.name}</TableCell>
-                        <TableCell>{row.role}</TableCell>
+                        <TableCell>{row.subject}</TableCell>
+                        {/* <TableCell>{row.senderType}</TableCell> */}
                         <TableCell>
                           <Tag
                             type={
-                              row.status === "Received"
+                              row.senderType.toLowerCase() === "person"
                                 ? "green"
-                                : row.status === "Pending"
+                                : row.senderType.toLowerCase() === "department"
                                 ? "warm-gray"
                                 : "red"
                             }
                           >
-                            {row.status}
+                            {row.senderType}
                           </Tag>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(row.createdAt).toLocaleDateString()}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -226,9 +241,9 @@ export default function Dashboard() {
             }}
           >
             <SimpleBarChart
-              data={pieData}
+              data={chartData}
               options={{
-                title: "User Distribution",
+                title: "Letter Distribution Per Department",
                 axes: {
                   left: {
                     mapsTo: "value",

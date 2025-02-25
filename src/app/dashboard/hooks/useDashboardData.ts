@@ -8,6 +8,11 @@ interface DashboardDataModel {
   userscount: number;
   departmentscount: number;
   ticketscount: number;
+  lettersperdepartment: {
+    uuid: string;
+    name: string;
+    _count: { Letters: number };
+  }[];
 }
 export const useDashboardData = () => {
   const [dashboardData, setDashboardData] = useState<DashboardDataModel | null>(
@@ -34,5 +39,5 @@ export const useDashboardData = () => {
     fetchdata();
   }, []);
 
-  return { data:dashboardData, isLoading, error };
+  return { data: dashboardData, isLoading, error };
 };
