@@ -1,8 +1,43 @@
-
-
-.left-column,
-.right-column {
+.dashboardContainer {
+  height: calc(100vh - 70px); /* Full height of the viewport */
   padding: 8px;
-  background-color: #f4f4f4;
+  overflow: hidden; /* Prevents scrolling */
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboardContainer > .bx--grid {
+  flex-grow: 1; /* Ensures the grid expands within the container */
+  overflow: hidden;
+}
+
+.dashboardStatColumn {
+  margin: 4px;
+}
+.dashboardStatTile {
+  border-radius: 8px;
+  background-color: #e2d8d8;
   border: 1px solid #e0e0e0;
+  color: "white";
+  padding: "1rem";
+}
+.dashboardStatTile:hover {
+  background-color: #f0f0f0;
+}
+
+.customTableContainer .cds--data-table-container {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0px;
+}
+
+.customTableContainer .cds--data-table-header {
+
+  padding-top: 4px !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 4px !important;
 }

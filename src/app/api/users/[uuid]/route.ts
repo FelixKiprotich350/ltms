@@ -28,6 +28,7 @@ export async function GET(
     include: {
       Person: true,
       UserRole: true,
+      Department: true,
     },
   });
 

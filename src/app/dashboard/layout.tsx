@@ -3,5 +3,5 @@ export default function BlogLayout({
   }: {
     children: React.ReactNode
   }) {
-    return <section>{children}</section>
+    return <section >{children}</section>
   }

@@ -10,35 +10,12 @@ import {
   TableCell,
   TableContainer,
 } from "@carbon/react";
-import { Person, Role, TrtUser as user } from "@prisma/client";
+import { useUserRoles } from "app/hooks/useUserRoles";
 
 export default function RoleManagement() {
-  const [roles, setRoles] = useState<Role[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { roles,isLoading,error } = useUserRoles();
 
-  useEffect(() => {
-    const fetchRoles = async () => {
-      try {
-        setIsLoading(true);
-        setError(null); // Reset error before a new fetch
-
-        const response = await fetch("/api/roles/all"); // Replace with your actual API endpoint
-        if (!response.ok) {
-          throw new Error(`Failed to fetch Roles: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        setRoles(data); // Assume the API returns a list of users
-      } catch (err: any) {
-        setError(err.message || "Something went wrong.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchRoles();
-  }, []);
+ 
 
   return (
     <div>
@@ -49,7 +26,7 @@ export default function RoleManagement() {
       ) : error ? (
         <p>Error: {error}</p>
       ) : (
-        <TableContainer title="User List">
+        <TableContainer title="User Roles List">
           <Table>
             <TableHead>
               <TableRow>

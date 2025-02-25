@@ -2,7 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { LtmsUser, Person, LtmsUser as User, UserRole } from "@prisma/client";
+import {
+  LtmsUser,
+  OrganisationDepartment,
+  Person,
+  LtmsUser as User,
+  UserRole,
+} from "@prisma/client";
 import {
   Grid,
   Column,
@@ -12,30 +18,29 @@ import {
   Dropdown,
 } from "@carbon/react";
 import { useFetchUsers } from "app/hooks/useFetchUsers";
+import { useUserAccount } from "app/hooks/useUserAccount";
+import { useUserRoles } from "app/hooks/useUserRoles";
+import { useUserDetails } from "app/hooks/useUserDetails";
 
-interface CustomUser extends User {
-  Person: Person;
-  Role: UserRole;
+interface ExtendedUser extends LtmsUser {
+  Person?: Person;
+  UserRole?: UserRole;
+  Department?: OrganisationDepartment;
 }
 
 export default function UserDetailsPage() {
   const { uuid } = useParams();
-  const [user, setUser] = useState<CustomUser | null>(null);
-  const [currentUser, setCurrentUser] = useState<CustomUser | null>(null);
-  const [roles, setRoles] = useState<UserRole[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  // const [user, setUser] = useState<ExtendedUser | null>(null);
+  const [currentUser, setCurrentUser] = useState<ExtendedUser | null>(null);
+  const { roles } = useUserRoles();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const {
-    users,
+    user,
     isLoading: fetchisloading,
     error: fetcherror,
-  } = useFetchUsers();
-
-  useEffect(() => {
-    if (!uuid) return;
-
-    setUser(users.find((item: CustomUser) => item.uuid == uuid) ?? null);
-  }, [uuid]);
+  } = useUserDetails(uuid);
+ 
 
   const updateUserStatus = async (action: "approve" | "disable") => {
     if (!user) return;
@@ -48,7 +53,7 @@ export default function UserDetailsPage() {
         throw new Error(`Failed to ${action} user: ${response.statusText}`);
       }
       const updatedUser = await response.json();
-      setUser(updatedUser);
+      // setUser(updatedUser);
     } catch (err: any) {
       setError(err.message || "Something went wrong.");
     }
@@ -66,7 +71,7 @@ export default function UserDetailsPage() {
         throw new Error("Failed to update role.");
       }
       const updatedUser = await response.json();
-      setUser(updatedUser);
+      // setUser(updatedUser);
     } catch (err: any) {
       setError(err.message || "Something went wrong.");
     }
@@ -95,13 +100,13 @@ export default function UserDetailsPage() {
               <p>
                 <strong>Role:</strong>
                 {currentUser?.uuid === user.uuid ? (
-                  user.Role?.name // Display only if it's the current user
+                  user.UserRole?.name // Display only if it's the current user
                 ) : (
                   <Dropdown
                     id="role-dropdown"
                     items={roles}
                     itemToString={(role: UserRole) => role.name}
-                    initialSelectedItem={user.Role}
+                    initialSelectedItem={user.UserRole}
                     onChange={(selectedItem: UserRole) =>
                       updateUserRole(selectedItem)
                     }

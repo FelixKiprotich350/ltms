@@ -128,10 +128,7 @@ const LeftPanelMenu: React.FC<LeftPanelMenuProps> = ({
           </Link>
           <Link href="/myaccount/prefferences" passHref legacyBehavior>
             <SideNavMenuItem>Prefferences</SideNavMenuItem>
-          </Link>
-          <Link href="/myaccount/passwordchange" passHref legacyBehavior>
-            <SideNavMenuItem>Change Password</SideNavMenuItem>
-          </Link>
+          </Link> 
         </SideNavMenu>
       </SideNavItems>
     </SideNav>
