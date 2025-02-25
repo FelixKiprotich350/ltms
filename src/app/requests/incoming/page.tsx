@@ -312,11 +312,12 @@ export default function IncomingLetterRequests() {
                     id="reply-message"
                     name="reply-message"
                     labelText="Body/Description"
+                    maxLength={2000}
                     value={replyMessage}
                     onChange={handleReplyMessageInputChange}
                     className="replyTextArea"
                   />
-                  <label>{`(${replyMessage.length}/5000)`}</label>
+                  <label>{`(${replyMessage.length}/2000)`}</label>
                   <FileUploader
                     // labelTitle="Attachments"
                     buttonLabel="Add files"

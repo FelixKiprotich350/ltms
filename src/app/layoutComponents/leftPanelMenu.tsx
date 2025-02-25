@@ -39,10 +39,6 @@ const LeftPanelMenu: React.FC<LeftPanelMenuProps> = ({
         <Link href="/dashboard" passHref legacyBehavior>
           <SideNavLink>Dashboard</SideNavLink>
         </Link>
-        {/* {user.Role?.name == "Cashier" ||
-          (user.Role?.name == "Admin" && (
-          
-          ))} */}
         <SideNavMenu title="Letters">
           <Link href="/requests/new" passHref legacyBehavior>
             <SideNavMenuItem>New Request</SideNavMenuItem>
@@ -91,22 +87,16 @@ const LeftPanelMenu: React.FC<LeftPanelMenuProps> = ({
           </Link>
         </SideNavMenu>
         <SideNavMenu title="Notifications">
-          <Link href="/inventory/allproducts" passHref legacyBehavior>
-            <SideNavMenuItem>Products List</SideNavMenuItem>
+          <Link href="/notifications/master" passHref legacyBehavior>
+            <SideNavMenuItem>Master</SideNavMenuItem>
           </Link>
-          <Link href="/inventory/receive" passHref legacyBehavior>
-            <SideNavMenuItem>Receive Stock</SideNavMenuItem>
+          <Link href="/notifications/types" passHref legacyBehavior>
+            <SideNavMenuItem>Notification Types</SideNavMenuItem>
           </Link>
-          <Link href="/inventory/packunits" passHref legacyBehavior>
-            <SideNavMenuItem>Packaging Units</SideNavMenuItem>
-          </Link>
-          <Link href="/inventory/categories" passHref legacyBehavior>
-            <SideNavMenuItem>Categories</SideNavMenuItem>
+          <Link href="/notifications/channels" passHref legacyBehavior>
+            <SideNavMenuItem>Channels</SideNavMenuItem>
           </Link>
         </SideNavMenu>
-        {/* {user.Role?.name == "Admin" && (
-         
-        )} */}
         <SideNavMenu title="User Management">
           <Link href="/users" passHref legacyBehavior>
             <SideNavMenuItem>Users List</SideNavMenuItem>
@@ -115,33 +105,33 @@ const LeftPanelMenu: React.FC<LeftPanelMenuProps> = ({
             <SideNavMenuItem>User Roles</SideNavMenuItem>
           </Link>
         </SideNavMenu>
-        {/* {user.Role?.name == "Admin" && (
-          
-        )} */}
         <SideNavMenu title="Reports">
-          <Link href="/reports/sales" legacyBehavior>
-            <SideNavMenuItem>Sales Reports</SideNavMenuItem>
+          <Link href="/reports/summary" legacyBehavior>
+            <SideNavMenuItem>Summary Reports</SideNavMenuItem>
           </Link>
-          <Link href="/reports/products" legacyBehavior>
-            <SideNavMenuItem>Product Reports</SideNavMenuItem>
+          <Link href="/reports/letterrlist" legacyBehavior>
+            <SideNavMenuItem>Letters by Department</SideNavMenuItem>
           </Link>
           <Link href="/reports/payments" legacyBehavior>
-            <SideNavMenuItem>Payment Reports</SideNavMenuItem>
+            <SideNavMenuItem>Letters by Category</SideNavMenuItem>
           </Link>
-          {/* <Link href="/reports/users" legacyBehavior>
+          <Link href="/reports/payments" legacyBehavior>
+            <SideNavMenuItem>Notification Reports</SideNavMenuItem>
+          </Link>
+          <Link href="/reports/users" legacyBehavior>
             <SideNavMenuItem>User Reports</SideNavMenuItem>
-          </Link> */}
+          </Link>
         </SideNavMenu>
         <SideNavMenu title="My Account">
           <Link href="/myaccount/profile" passHref legacyBehavior>
             <SideNavLink>My Profile</SideNavLink>
           </Link>
+          <Link href="/myaccount/prefferences" passHref legacyBehavior>
+            <SideNavMenuItem>Prefferences</SideNavMenuItem>
+          </Link>
           <Link href="/myaccount/passwordchange" passHref legacyBehavior>
             <SideNavMenuItem>Change Password</SideNavMenuItem>
           </Link>
-          {/* <Link href="/reports/payments" passHref legacyBehavior>
-            <SideNavMenuItem>Payment Reports</SideNavMenuItem>
-          </Link> */}
         </SideNavMenu>
       </SideNavItems>
     </SideNav>

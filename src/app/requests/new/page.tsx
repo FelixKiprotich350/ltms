@@ -222,11 +222,12 @@ export default function InitialSetup() {
             id="letterbody"
             name="letterbody"
             labelText="Body/Description"
+            maxLength={2000}
             value={formData.letterbody}
             onChange={handleInputChange}
             style={styles.textArea}
           />
-          <label>{`(${formData.letterbody.length}/5000)`}</label>
+          <label>{`(${formData.letterbody.length}/2000)`}</label>
         </div>
         <div className="halfWidthColumn">
           <Select
