@@ -4,16 +4,26 @@ import prisma from "lib/prisma";
 // GET: Fetch top 10 selling products
 export async function GET() {
   try {
-    const allCaegories = await prisma.letterCategory.findMany();
-     // Group sales by productUuid and calculate total quantity sold
-    const topSellingProducts = await prisma.letterRequest.findMany();
-  
-      
-    return NextResponse.json(
-      { "message":"success"
-      },
-      { status: 200 }
-    );
+    const categories = await prisma.letterCategory.count();
+    const recentletters = await prisma.letterRequest.findMany({
+      where: { rootLetterUuid: null },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+    });
+    const letterscount = await prisma.letterRequest.count();
+    const userscount = await prisma.ltmsUser.count();
+    const departmentscount = await prisma.organisationDepartment.count();
+    const ticketscount = await prisma.letterTicket.count();
+
+    const resdata = {
+      categories,
+      recentletters,
+      letterscount,
+      userscount,
+      departmentscount,
+      ticketscount,
+    };
+    return NextResponse.json({ data: resdata }, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
