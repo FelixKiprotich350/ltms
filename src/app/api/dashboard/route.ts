@@ -11,18 +11,26 @@ export async function GET() {
     const topdepartments = (
       await Promise.all(
         departments.map(async (dep) => {
-          const depcount = await prisma.letterRequest.count({
+          const topletters = await prisma.letterRequest.count({
+            where: { senderDepartmentUuid: dep.uuid, rootLetterUuid: null },
+          });
+          const replyletterscount = await prisma.letterRequest.count({
             where: { senderDepartmentUuid: dep.uuid },
           });
           return {
             uuid: dep.uuid,
             name: dep.name,
-            totalRooteLetters: depcount,
+            totalRooteLetters: topletters,
+            totalReplyLetters: replyletterscount,
           };
         })
       )
     )
-      .sort((a, b) => b.totalRooteLetters - a.totalRooteLetters) // Sort in descending order
+      .sort(
+        (a, b) =>
+          b.totalRooteLetters - a.totalRooteLetters || // Sort by root letters first
+          b.totalReplyLetters - a.totalReplyLetters // If equal, sort by reply letters
+      )
       .slice(0, 5); // Take the top 5 departments
 
     const letterscount = await prisma.letterRequest.count();

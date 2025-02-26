@@ -33,7 +33,7 @@ import {
 } from "@carbon/icons-react";
 import "./page.css";
 import { useDashboardData } from "./hooks/useDashboardData";
-import { blue10, coolGray10, green20, red20 } from "@carbon/colors";
+import { blue20, coolGray10, green20, red20 } from "@carbon/colors";
 
 interface CountData {
   title: string;
@@ -58,13 +58,13 @@ export default function Dashboard() {
         {
           title: "Total Tickets",
           value: data.ticketscount ?? 0,
-          color: coolGray10,
+          color: blue20,
           icon: Task,
         },
         {
           title: "Total Users",
           value: data.userscount ?? 0,
-          color: blue10,
+          color: coolGray10,
           icon: UserMultiple,
         },
         {
@@ -77,13 +77,13 @@ export default function Dashboard() {
     }
   }, [data]);
 
-  const headers = ["Department", "Root Letters", "Replies"];
+  const headers = ["Department", "Letters", "Replies"];
   const rows =
     data?.topdepartments?.map((dep) => ({
       id: dep.uuid,
       name: dep.name,
       totalRooteLetters: dep.totalRooteLetters,
-      totalReplyLetters: dep.totalRooteLetters,
+      totalReplyLetters: dep.totalReplyLetters,
     })) ?? [];
 
   const chartData =
@@ -126,11 +126,38 @@ export default function Dashboard() {
                     className="dashboardStatTile"
                     style={{ backgroundColor: stat.color }}
                   >
-                    <IconComponent size={32} />
+                    {/* <IconComponent size={32} />
                     <h4 style={{ fontSize: "1.25rem", fontWeight: "600" }}>
                       {stat.title}
                     </h4>
                     <p style={{ fontSize: "2rem", fontWeight: "bold" }}>
+                      {stat.value.toLocaleString()}
+                    </p> */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                      }}
+                    >
+                      <IconComponent size={32} />
+                      <h4
+                        style={{
+                          fontSize: "1.25rem",
+                          fontWeight: "600",
+                          margin: 0,
+                        }}
+                      >
+                        {stat.title}
+                      </h4>
+                    </div>
+                    <p
+                      style={{
+                        fontSize: "2rem",
+                        fontWeight: "bold",
+                        marginTop: "0.5rem",
+                      }}
+                    >
                       {stat.value.toLocaleString()}
                     </p>
                   </Tile>
@@ -205,11 +232,7 @@ export default function Dashboard() {
                           <TableRow key={row.id}>
                             <TableCell>{row.name}</TableCell>
                             <TableCell>{row.totalRooteLetters}</TableCell>
-                            <TableCell>
-                              {new Date(
-                                row.totalReplyLetters
-                              ).toLocaleDateString()}
-                            </TableCell>
+                            <TableCell>{row.totalReplyLetters}</TableCell>
                           </TableRow>
                         ))}
                   </TableBody>

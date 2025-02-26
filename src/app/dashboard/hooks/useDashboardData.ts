@@ -17,6 +17,7 @@ interface DashboardDataModel {
     uuid: string;
     name: string;
     totalRooteLetters: number;
+    totalReplyLetters: number;
   }[];
 }
 export const useDashboardData = () => {

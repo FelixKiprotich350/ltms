@@ -69,7 +69,7 @@ export default function RecipientDepartment() {
     const fetchDepartments = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch("/api/recipients/departments");
+        const response = await fetch("/api/admin/orgdepartment");
         if (response.ok) {
           const data = await response.json();
           setDepartments(data);
@@ -266,11 +266,10 @@ export default function RecipientDepartment() {
                     </TableCell>
                     <TableCell>{department.description}</TableCell>
                     <TableCell>
-                      
                       {recipients.find(
                         (item) => item.departmentUuid === department.uuid
                       )?.isActive ? (
-                        <label style={{ color: "darkblue"}}>Enabled</label>
+                        <label style={{ color: "darkblue" }}>Enabled</label>
                       ) : (
                         <Button
                           id={`checkbox-${department.uuid}`}
@@ -322,8 +321,16 @@ export default function RecipientDepartment() {
             style={{ marginBottom: "1rem" }}
           >
             <SelectItem key={""} text={"Select Status"} value={""} />
-            <SelectItem key={"ENABLED"} text={"ENABLED"} value={UserAccountLoginStatus.ENABLED} />
-            <SelectItem key={"DISABLED"} text={"DISABLED"} value={UserAccountLoginStatus.DISABLED} />
+            <SelectItem
+              key={"ENABLED"}
+              text={"ENABLED"}
+              value={UserAccountLoginStatus.ENABLED}
+            />
+            <SelectItem
+              key={"DISABLED"}
+              text={"DISABLED"}
+              value={UserAccountLoginStatus.DISABLED}
+            />
           </Select>
           <TextInput
             id="department-description"

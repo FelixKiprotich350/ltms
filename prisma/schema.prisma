@@ -61,23 +61,29 @@ model LtmsUser {
 }
 
 model UserRole {
-  uuid        String       @id @default(uuid()) // UUID as a unique field
-  name        String       @unique
-  description String?
-  users       LtmsUser[]
-  permissions Permission[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-}
-
-model Permission {
-  id          Int        @id @default(autoincrement()) // Int as PK
-  uuid        String     @unique @default(uuid()) // UUID as a unique field
+  uuid        String     @id @default(uuid()) // UUID as a unique field
   name        String     @unique
   description String?
-  roles       UserRole[]
+  users       LtmsUser[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+}
+
+model PermissionMaster {
+  uuid        String   @id @default(uuid()) // UUID as a unique field
+  codeName    String   @unique
+  commonName  String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model UserPermission {
+  uuid           String   @id @default(uuid()) // UUID as a unique field
+  userUuid       String
+  permissionUuid String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 //organisation
