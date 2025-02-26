@@ -34,7 +34,7 @@ type FormData = {
   recipientDepartments: string[]; // Or another appropriate type
   attachments: File[];
   externalReference: string;
-  confidentiality: string;
+  letterIsArchived: boolean;
   error: string;
 };
 export default function InitialSetup() {
@@ -43,10 +43,10 @@ export default function InitialSetup() {
     letterbody: "",
     categoryUuid: "",
     senderType: "",
-    recipientDepartments: [], // Store multiple selected departments
+    recipientDepartments: [],
     attachments: [],
     externalReference: "",
-    confidentiality: "",
+    letterIsArchived: false,
     error: "",
   });
 
@@ -127,7 +127,7 @@ export default function InitialSetup() {
         }));
         return;
       }
- 
+
       setFormData((prev) => ({
         ...prev,
         attachments: [...prev.attachments, ...validFiles],
@@ -161,7 +161,7 @@ export default function InitialSetup() {
     formDataToSend.append("letterbody", formData.letterbody);
     formDataToSend.append("categoryUuid", formData.categoryUuid);
     formDataToSend.append("senderType", formData.senderType);
-    formDataToSend.append("confidentiality", formData.confidentiality);
+    formDataToSend.append("letterIsArchived", formData.letterIsArchived);
     formDataToSend.append("externalReference", formData.externalReference);
     // Append multiple selected departments
     formData.recipientDepartments.forEach((dept) => {

@@ -5,6 +5,7 @@ import path from "path";
 import mime from "mime";
 import { getServerSession } from "next-auth";
 import { authOptions } from "app/api/auth/[...nextauth]/route";
+import { LeterRecipientReceivedStatus } from "lib/constants";
 
 interface FileMeta {
   fileUrl: string;
@@ -107,8 +108,7 @@ export async function POST(request: Request) {
           letterCategoryUuid,
           senderUserUuid: user.uuid,
           senderDepartmentUuid: user.Department?.uuid ?? "",
-          status: "PENDING",
-          confidentiality,
+          letterIsArchived: false,
         },
       });
 
@@ -119,6 +119,7 @@ export async function POST(request: Request) {
             data: {
               recipientUuid,
               letterUuid: letterRequest.uuid,
+              status: LeterRecipientReceivedStatus.PENDING,
             },
           })
         )

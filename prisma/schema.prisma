@@ -58,32 +58,47 @@ model LtmsUser {
   LetterTicket LetterTicket[] @relation(name: "userCreatingTicket")
 
   DraftedLetterRequest DraftedLetterRequest[] @relation("LetterSender")
+
+  UserPermission UserPermission[] @relation(name: "LtmsUserToUserPermission")
 }
 
 model UserRole {
-  uuid        String     @id @default(uuid()) // UUID as a unique field
-  name        String     @unique
-  description String?
-  users       LtmsUser[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  uuid                   String                  @id @default(uuid()) // UUID as a unique field
+  name                   String                  @unique
+  description            String?
+  users                  LtmsUser[]
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  DefaultRolePermissions DefaultRolePermission[]
 }
 
 model PermissionMaster {
-  uuid        String   @id @default(uuid()) // UUID as a unique field
-  codeName    String   @unique
-  commonName  String   @unique
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  uuid           String           @id @default(uuid()) // UUID as a unique field
+  codeName       String           @unique
+  commonName     String           @unique
+  description    String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  UserPermission UserPermission[] @relation(name: "PermissionMasterToUserPermission")
 }
 
 model UserPermission {
+  uuid             String           @id @default(uuid()) // UUID as a unique field
+  userUuid         String
+  permissionUuid   String
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  PermissionMaster PermissionMaster @relation(name: "PermissionMasterToUserPermission", fields: [permissionUuid], references: [uuid])
+  LtmsUser         LtmsUser         @relation(name: "LtmsUserToUserPermission", fields: [userUuid], references: [uuid])
+}
+
+model DefaultRolePermission {
   uuid           String   @id @default(uuid()) // UUID as a unique field
-  userUuid       String
+  userRoleUuid   String
   permissionUuid String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  UserRole       UserRole @relation(fields: [userRoleUuid], references: [uuid])
 }
 
 //organisation
@@ -131,7 +146,7 @@ model LetterRequest {
   externalReference    String?
   subject              String
   body                 String                 @db.Text
-  confidentiality      String
+  letterIsArchived     Boolean                @default(false)
   senderType           String
   rootLetterUuid       String? // Nullable to allow root letters
   RootLetter           LetterRequest?         @relation("RootChild", fields: [rootLetterUuid], references: [uuid])
@@ -143,7 +158,6 @@ model LetterRequest {
   SenderUser           LtmsUser               @relation("LetterSender", fields: [senderUserUuid], references: [uuid])
   senderDepartmentUuid String
   SenderDepartment     OrganisationDepartment @relation("LetterDepartment", fields: [senderDepartmentUuid], references: [uuid])
-  status               String
   Approvals            Approval[]
   Attachments          Attachment[]
   Logs                 Log[]
@@ -193,6 +207,7 @@ model LetterRecipient {
   uuid                 String                 @id @default(uuid()) // UUID as a unique field
   letterUuid           String
   recipientUuid        String
+  status               String
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
   Letter               LetterRequest          @relation(name: "LetterstoRecipients", fields: [letterUuid], references: [uuid])

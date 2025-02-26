@@ -25,7 +25,14 @@ export async function PUT(
 
     const letter = await prisma.letterRequest.findUnique({
       where: { uuid },
-      include: { LetterTicket: true },
+      include: {
+        LetterTicket: true,
+        LetterRecipients: {
+          include: {
+            RecipientMaster: { include: { UserPersonRecipient: true } },
+          },
+        },
+      },
     });
 
     if (!letter) {
@@ -34,20 +41,29 @@ export async function PUT(
         { status: 404 }
       );
     }
-
-    if (letter.status === "RECEIVED") {
+    const userasrecipient = letter.LetterRecipients.find(
+      (item) => item.RecipientMaster?.UserPersonRecipient?.uuid == userUuid
+    );
+    if (!userasrecipient) {
       return NextResponse.json(
-        { error: "Letter request has already been received!" },
+        { error: "The user is not a recipient of this letter" },
+        { status: 404 }
+      );
+    }
+    if (userasrecipient?.status === "RECEIVED") {
+      return NextResponse.json(
+        { error: "Letter has already been received!" },
         { status: 400 }
       );
     }
 
-    const existingTicket = letter.LetterTicket.length > 0 ? letter.LetterTicket[0] : null;
+    const existingTicket =
+      letter.LetterTicket.length > 0 ? letter.LetterTicket[0] : null;
 
     // Start Prisma transaction
     const transactionResults = await prisma.$transaction([
       // Update the letter request status
-      prisma.letterRequest.update({
+      prisma.letterRecipient.update({
         where: { uuid },
         data: { status: "RECEIVED" },
       }),
@@ -82,9 +98,6 @@ export async function PUT(
     prisma.$disconnect();
   }
 }
-
-
-
 
 // Function to generate a unique ticket number
 async function generateTicketNumber() {

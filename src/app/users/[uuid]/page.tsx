@@ -93,7 +93,7 @@ export default function UserDetailsPage() {
                 <strong>Email:</strong> {user.email}
               </p>
               <p>
-                <strong>Role:</strong>{" "}
+                <strong>Role:</strong>
                 <Dropdown
                   id="role-dropdown"
                   items={roles}

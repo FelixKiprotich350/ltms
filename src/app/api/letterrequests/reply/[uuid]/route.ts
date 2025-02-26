@@ -5,7 +5,10 @@ import path from "path";
 import mime from "mime";
 import { getServerSession } from "next-auth";
 import { authOptions } from "app/api/auth/[...nextauth]/route";
-import { LetterSenderRecipientType } from "lib/constants";
+import {
+  LeterRecipientReceivedStatus,
+  LetterSenderRecipientType,
+} from "lib/constants";
 import { LetterRecipient, RecipientsMaster } from "@prisma/client";
 
 interface FileMeta {
@@ -171,8 +174,7 @@ export async function POST(
           letterCategoryUuid: parentletter.letterCategoryUuid,
           senderUserUuid: user.uuid,
           senderDepartmentUuid: user.Department?.uuid ?? "",
-          status: "PENDING",
-          confidentiality: parentletter.confidentiality,
+          letterIsArchived: false,
           parentLetterUuid: parentletter.uuid,
           rootLetterUuid: parentletter.rootLetterUuid
             ? parentletter.rootLetterUuid
@@ -185,6 +187,7 @@ export async function POST(
         data: {
           recipientUuid: parentLetterSenderAsRecipient.uuid,
           letterUuid: letterRequest.uuid,
+          status: LeterRecipientReceivedStatus.PENDING,
         },
       });
 

@@ -263,16 +263,12 @@ export default function IncomingLetterRequests() {
                 <strong>Sender:</strong>
                 {selectedRequest.SenderDepartment?.name}(
                 {selectedRequest.SenderUser?.email})
-              </p>
-              <p>
-                <strong>Confidentiality:</strong>{" "}
-                {selectedRequest.confidentiality.toUpperCase()}
-              </p>
+              </p> 
               <p>
                 <strong>Status:</strong> {selectedRequest.status}
               </p>
               <p>
-                <strong>Created At:</strong>{" "}
+                <strong>Created At:</strong>
                 {new Date(selectedRequest.createdAt).toLocaleString()}
               </p>
             </div>

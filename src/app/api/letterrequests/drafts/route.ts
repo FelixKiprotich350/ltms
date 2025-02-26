@@ -5,6 +5,7 @@ import { authOptions } from "app/api/auth/[...nextauth]/route";
 import fs from "fs";
 import path from "path";
 import mime from "mime";
+import { LeterRecipientReceivedStatus } from "lib/constants";
 
 interface FileMeta {
   fileUrl: string;
@@ -182,6 +183,7 @@ export async function POST(request: Request) {
             data: {
               recipientUuid,
               letterUuid: letterRequest.uuid,
+              status: LeterRecipientReceivedStatus.PENDING,
             },
           })
         )
