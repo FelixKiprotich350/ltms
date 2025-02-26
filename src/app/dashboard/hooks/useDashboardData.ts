@@ -13,6 +13,11 @@ interface DashboardDataModel {
     name: string;
     _count: { Letters: number };
   }[];
+  topdepartments: {
+    uuid: string;
+    name: string;
+    totalRooteLetters: number;
+  }[];
 }
 export const useDashboardData = () => {
   const [dashboardData, setDashboardData] = useState<DashboardDataModel | null>(

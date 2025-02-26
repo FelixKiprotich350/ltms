@@ -5,20 +5,26 @@ import prisma from "lib/prisma";
 export async function GET() {
   try {
     const categories = await prisma.letterCategory.count();
-    const recentletters = await prisma.letterRequest.findMany({
-      // where: { rootLetterUuid: null },
-      select: {
-        uuid: true,
-        subject: true,
-        createdAt: true,
-        senderType: true,
-        SenderDepartment: true,
-        SenderUser: true,
-        status: true,
-      },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-    });
+    const departments = await prisma.organisationDepartment.findMany({});
+
+    // Fetch letter counts and sort departments by count in descending order
+    const topdepartments = (
+      await Promise.all(
+        departments.map(async (dep) => {
+          const depcount = await prisma.letterRequest.count({
+            where: { senderDepartmentUuid: dep.uuid },
+          });
+          return {
+            uuid: dep.uuid,
+            name: dep.name,
+            totalRooteLetters: depcount,
+          };
+        })
+      )
+    )
+      .sort((a, b) => b.totalRooteLetters - a.totalRooteLetters) // Sort in descending order
+      .slice(0, 5); // Take the top 5 departments
+
     const letterscount = await prisma.letterRequest.count();
     const userscount = await prisma.ltmsUser.count();
     const departmentscount = await prisma.organisationDepartment.count();
@@ -28,20 +34,21 @@ export async function GET() {
         uuid: true,
         name: true,
         _count: {
-          select: { Letters: true }, // Get count of related letters
+          select: { Letters: true },
         },
       },
     });
 
     const resdata = {
       categories,
-      recentletters,
+      topdepartments,
       letterscount,
-      userscount,
       departmentscount,
+      userscount,
       ticketscount,
       lettersperdepartment,
     };
+
     return NextResponse.json(resdata, { status: 200 });
   } catch (error) {
     console.error(error);
@@ -50,6 +57,6 @@ export async function GET() {
       { status: 500 }
     );
   } finally {
-    prisma.$disconnect();
+    await prisma.$disconnect();
   }
 }

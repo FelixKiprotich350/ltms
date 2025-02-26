@@ -33,64 +33,6 @@ export async function GET(
   }
 }
 
-// PUT: Update a category by ID
-export async function PUT(
-  request: Request,
-  { params }: { params: { uuid: string } }
-) {
-  const { uuid } = params;
-
-  try {
-    const body = await request.json();
-    const { name, description } = body;
-
-    const updatedCategory = await prisma.organisationDepartment.update({
-      where: {
-        uuid: uuid,
-      },
-      data: {
-        name,
-        description,
-      },
-    });
-
-    return NextResponse.json(updatedCategory);
-  } catch (error) {
-    console.error("Error updating category:", error);
-    return NextResponse.json(
-      { error: "Failed to update category" },
-      { status: 500 }
-    );
-  } finally {
-    prisma.$disconnect();
-  }
-}
-
-// DELETE: Delete a category by ID
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  const { id } = params;
-
-  try {
-    await prisma.organisationDepartment.delete({
-      where: {
-        uuid: id,
-      },
-    });
-
-    return NextResponse.json({ message: "Category deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting category:", error);
-    return NextResponse.json(
-      { error: "Failed to delete category" },
-      { status: 500 }
-    );
-  } finally {
-    prisma.$disconnect();
-  }
-}
 
 async function generateTicketNumber() {
   const currentDate = new Date();

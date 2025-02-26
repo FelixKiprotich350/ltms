@@ -1,8 +1,13 @@
 "use client";
 
-import React, { use, useEffect, useState } from "react";
-import { Grid, Column, Layer, Tag, Tile } from "@carbon/react";
+import React, { useEffect, useState } from "react";
 import {
+  Grid,
+  Column,
+  Layer,
+  Tag,
+  Tile,
+  SkeletonText,
   DataTable,
   TableContainer,
   Table,
@@ -11,43 +16,24 @@ import {
   TableHeader,
   TableBody,
   TableCell,
+  SkeletonPlaceholder,
+  Loading,
 } from "@carbon/react";
 import {
-  PieChart,
-  ScaleTypes,
   SimpleBarChart,
+  ScaleTypes,
   ToolbarControlTypes,
 } from "@carbon/charts-react";
 import "@carbon/charts/styles.css";
 import {
   UserMultiple,
-  CheckmarkFilled,
-  WarningAltFilled,
-  TaskComplete,
   Task,
-  LicenseDraft,
   DocumentPdf,
   Categories,
-  Category,
 } from "@carbon/icons-react";
 import "./page.css";
 import { useDashboardData } from "./hooks/useDashboardData";
-import { color } from "@carbon/charts";
-import { LetterRequest } from "@prisma/client";
-
-interface DashboardDataModel {
-  categories: number;
-  recentletters: LetterRequest[];
-  letterscount: number;
-  userscount: number;
-  departmentscount: number;
-  ticketscount: number;
-  lettersperdepartment: {
-    uuid: string;
-    name: string;
-    _count: { Letters: number };
-  }[];
-}
+import { blue10, coolGray10, green20, red20 } from "@carbon/colors";
 
 interface CountData {
   title: string;
@@ -58,88 +44,99 @@ interface CountData {
 
 export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState<CountData[]>([]);
-
   const { data, isLoading, error } = useDashboardData();
-  console.log(data);
+
   useEffect(() => {
     if (data) {
       setDashboardData([
         {
           title: "Total Letters",
           value: data.letterscount ?? 0,
-          color: "#e2d8d8",
+          color: green20,
           icon: DocumentPdf,
         },
         {
           title: "Total Tickets",
           value: data.ticketscount ?? 0,
-          color: "#e2d8d8",
+          color: coolGray10,
           icon: Task,
         },
         {
           title: "Total Users",
           value: data.userscount ?? 0,
-          color: "#e2d8d8",
+          color: blue10,
           icon: UserMultiple,
         },
         {
           title: "Departments",
           value: data.departmentscount ?? 0,
-          color: "#e2d8d8",
+          color: red20,
           icon: Categories,
         },
       ]);
     }
   }, [data]);
 
-  const headers = ["Subject", "Sender Type", "createdAt"];
-  const rows = data?.recentletters
-    ? data.recentletters.map((letter) => ({
-        id: letter.uuid,
-        subject: letter.subject,
-        senderType: letter.senderType,
-        createdAt: letter.createdAt,
-      }))
-    : [];
+  const headers = ["Department", "Root Letters", "Replies"];
+  const rows =
+    data?.topdepartments?.map((dep) => ({
+      id: dep.uuid,
+      name: dep.name,
+      totalRooteLetters: dep.totalRooteLetters,
+      totalReplyLetters: dep.totalRooteLetters,
+    })) ?? [];
 
-  const pieData = [
-    { group: "Active Users", value: 893 },
-    { group: "Inactive Users", value: 250 },
-    { group: "Pending Requests", value: 55 },
-  ];
+  const chartData =
+    data?.lettersperdepartment?.map((dept) => ({
+      group: dept.name,
+      value: dept._count?.Letters ?? 0,
+    })) ?? [];
 
-  const chartData = data?.lettersperdepartment
-    ? data?.lettersperdepartment?.map((dept) => ({
-        group: dept.name,
-        value: dept._count?.Letters ?? 0,
-      }))
-    : [];
   return (
     <Layer className="dashboardContainer">
       {/* Upper Section - Stats */}
       <Grid fullWidth style={{ paddingLeft: "4px", paddingRight: "4px" }}>
-        {dashboardData.map((stat, index) => {
-          const IconComponent = stat.icon;
-          return (
-            <Column
-              key={index}
-              sm={4}
-              md={4}
-              lg={4}
-              className="dashboardStatColumn"
-            >
-              <Tile className="dashboardStatTile">
-                <IconComponent size={32} />
-                <h4 style={{ fontSize: "1.25rem", fontWeight: "600" }}>
-                  {stat.title}
-                </h4>
-                <p style={{ fontSize: "2rem", fontWeight: "bold" }}>
-                  {stat.value.toLocaleString()}
-                </p>
-              </Tile>
-            </Column>
-          );
-        })}
+        {isLoading
+          ? Array.from({ length: 4 }).map((_, index) => (
+              <Column
+                key={index}
+                sm={4}
+                md={4}
+                lg={4}
+                className="dashboardStatColumn"
+              >
+                <Tile className="dashboardStatTile">
+                  <SkeletonText width="50px" />
+                  <SkeletonText width="100px" />
+                  <SkeletonText width="60px" />
+                </Tile>
+              </Column>
+            ))
+          : dashboardData.map((stat, index) => {
+              const IconComponent = stat.icon;
+              return (
+                <Column
+                  key={index}
+                  sm={4}
+                  md={4}
+                  lg={4}
+                  className="dashboardStatColumn"
+                >
+                  <Tile
+                    className="dashboardStatTile"
+                    style={{ backgroundColor: stat.color }}
+                  >
+                    <IconComponent size={32} />
+                    <h4 style={{ fontSize: "1.25rem", fontWeight: "600" }}>
+                      {stat.title}
+                    </h4>
+                    <p style={{ fontSize: "2rem", fontWeight: "bold" }}>
+                      {stat.value.toLocaleString()}
+                    </p>
+                  </Tile>
+                </Column>
+              );
+            })}
       </Grid>
 
       {/* Lower Section */}
@@ -175,7 +172,7 @@ export default function Dashboard() {
             }}
           >
             <TableContainer
-              title="Recent Letter Requests"
+              title="Top Departments (By Letters)"
               className="customTableContainer"
             >
               <div
@@ -190,28 +187,31 @@ export default function Dashboard() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {rows?.map((row) => (
-                      <TableRow key={row.id}>
-                        <TableCell>{row.subject}</TableCell>
-                        {/* <TableCell>{row.senderType}</TableCell> */}
-                        <TableCell>
-                          <Tag
-                            type={
-                              row.senderType.toLowerCase() === "person"
-                                ? "green"
-                                : row.senderType.toLowerCase() === "department"
-                                ? "warm-gray"
-                                : "red"
-                            }
-                          >
-                            {row.senderType}
-                          </Tag>
-                        </TableCell>
-                        <TableCell>
-                          {new Date(row.createdAt).toLocaleDateString()}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {isLoading
+                      ? Array.from({ length: 5 }).map((_, index) => (
+                          <TableRow key={index}>
+                            <TableCell>
+                              <SkeletonText width="100px" />
+                            </TableCell>
+                            <TableCell>
+                              <SkeletonText width="60px" />
+                            </TableCell>
+                            <TableCell>
+                              <SkeletonText width="80px" />
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      : rows.map((row) => (
+                          <TableRow key={row.id}>
+                            <TableCell>{row.name}</TableCell>
+                            <TableCell>{row.totalRooteLetters}</TableCell>
+                            <TableCell>
+                              {new Date(
+                                row.totalReplyLetters
+                              ).toLocaleDateString()}
+                            </TableCell>
+                          </TableRow>
+                        ))}
                   </TableBody>
                 </Table>
               </div>
@@ -240,27 +240,41 @@ export default function Dashboard() {
               flexDirection: "column",
             }}
           >
-            <SimpleBarChart
-              data={chartData}
-              options={{
-                title: "Letter Distribution Per Department",
-                axes: {
-                  left: {
-                    mapsTo: "value",
+            {isLoading ? (
+              <SkeletonPlaceholder>
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                ></div>
+              </SkeletonPlaceholder>
+            ) : (
+              <SimpleBarChart
+                data={chartData}
+                options={{
+                  title: "Letter Distribution Per Department",
+                  axes: {
+                    left: { mapsTo: "value" },
+                    bottom: {
+                      scaleType: ScaleTypes.LABELS,
+                      mapsTo: "group",
+                      visible: false,
+                    },
                   },
-                  bottom: {
-                    scaleType: ScaleTypes.LABELS,
-                    mapsTo: "group",
+                  legend: { enabled: true },
+                  height: "100%",
+                  resizable: true,
+                  toolbar: {
+                    enabled: true,
+                    controls: [{ type: ToolbarControlTypes.SHOW_AS_DATATABLE }],
                   },
-                },
-                height: "100%", // Make chart height dynamic
-                resizable: true, // Allow chart to resize with parent
-                toolbar: {
-                  enabled: true,
-                  controls: [{ type: ToolbarControlTypes.SHOW_AS_DATATABLE }],
-                },
-              }}
-            />
+                }}
+              />
+            )}
           </Layer>
         </Column>
       </Grid>

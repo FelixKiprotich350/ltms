@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableHead,
@@ -14,37 +14,36 @@ import {
   Modal,
   InlineLoading,
   Select,
+  SelectItem,
 } from "@carbon/react";
-import { SelectItem } from "@carbon/react";
-import { UserAccountLoginStatus } from "lib/constants";
 
 interface Department {
-  uuid: string;
+  uuid: string | null;
   name: string;
   activeStatus: boolean;
   description: string;
 }
 
-export default function OganistaionalDepartment() {
+export default function OrganisationalDepartment() {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDepartment, setEditingDepartment] = useState<Department | null>(
     null
   );
-  const [newCategory, setNewCategory] = useState({
+  const [newDepartment, setNewDepartment] = useState<Department>({
+    uuid: null,
     name: "",
     description: "",
     activeStatus: false,
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch departments from the backend
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchDepartments = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch("/api/recipients/departments");
+        const response = await fetch("/api/admin/orgdepartment");
         if (response.ok) {
           const data = await response.json();
           setDepartments(data);
@@ -57,113 +56,102 @@ export default function OganistaionalDepartment() {
         setIsLoading(false);
       }
     };
-
-    fetchCategories();
+    fetchDepartments();
   }, []);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredCategories = departments.filter(
+  const filteredDepartments = departments.filter(
     (department) =>
       department.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       department.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleAddDepartment = async () => {
-    if (
-      newCategory.name &&
-      newCategory.description &&
-      newCategory.activeStatus
-    ) {
+    if (newDepartment.name && newDepartment.description) {
       try {
-        const response = await fetch("/api/recipients/departments", {
+        const response = await fetch("/api/admin/orgdepartment", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: newCategory.name,
-            activeStatus: newCategory.activeStatus,
-            description: newCategory.description,
-          }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newDepartment),
         });
 
         if (response.ok) {
-          const createdCategory = await response.json();
-          setDepartments([...departments, createdCategory]);
-          setNewCategory({
+          const createdDepartment = await response.json();
+          setDepartments([...departments, createdDepartment]);
+          setNewDepartment({
+            uuid: null,
             name: "",
             description: "",
             activeStatus: false,
           });
           setIsModalOpen(false);
         } else {
-          console.error("Failed to add category");
+          console.error("Failed to add department");
         }
       } catch (error) {
-        console.error("Error adding category:", error);
+        console.error("Error adding department:", error);
       }
     }
   };
 
-  const handleEditCategory = (category: Department) => {
-    setEditingDepartment(category);
+  const handleEditDepartment = (department: Department) => {
+    setEditingDepartment(department);
+    setNewDepartment(department);
     setIsModalOpen(true);
-    setNewCategory(category);
   };
 
-  const handleSaveCategory = async () => {
+  const handleSaveDepartment = async () => {
     if (editingDepartment) {
       try {
         const response = await fetch(
-          `/api/recipients/departments/${editingDepartment.uuid}`,
+          `/api/admin/orgdepartment/${editingDepartment.uuid}`,
           {
             method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(newCategory),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newDepartment),
           }
         );
 
         if (response.ok) {
-          const updatedCategory = await response.json();
+          const updatedDepartment = await response.json();
           setDepartments(
             departments.map((dep) =>
-              dep.uuid === updatedCategory.id ? updatedCategory : dep
+              dep.uuid === updatedDepartment.uuid ? updatedDepartment : dep
             )
           );
           setEditingDepartment(null);
-          setNewCategory({
+          setNewDepartment({
+            uuid: null,
             name: "",
             description: "",
             activeStatus: false,
           });
           setIsModalOpen(false);
         } else {
-          console.error("Failed to save category");
+          console.error("Failed to save department");
         }
       } catch (error) {
-        console.error("Error saving category:", error);
+        console.error("Error saving department:", error);
       }
     }
   };
 
-  const handleDeleteCategory = async (uuid: string) => {
+  const handleDeleteDepartment = async (uuid: string) => {
     try {
-      const response = await fetch(`/api/recipients/departments/${uuid}`, {
+      const response = await fetch(`/api/admin/orgdepartment/${uuid}`, {
         method: "DELETE",
       });
 
       if (response.ok) {
         setDepartments(departments.filter((dep) => dep.uuid !== uuid));
       } else {
-        console.error("Failed to delete category");
+        console.error("Failed to delete department");
       }
     } catch (error) {
-      console.error("Error deleting category:", error);
+      console.error("Error deleting department:", error);
     }
   };
 
@@ -194,30 +182,33 @@ export default function OganistaionalDepartment() {
             <TableHead>
               <TableRow>
                 <TableHeader>Name</TableHeader>
-                <TableHeader>Organizational Status</TableHeader>
+                <TableHeader>Active Status</TableHeader>
                 <TableHeader>Description</TableHeader>
                 <TableHeader>Actions</TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredCategories.map((category) => (
-                <TableRow key={category.uuid}>
-                  <TableCell>{category.name}</TableCell>
-                  <TableCell>{category.activeStatus}</TableCell>
-                  <TableCell>{category.description}</TableCell>
+              {filteredDepartments.map((department) => (
+                <TableRow key={department.uuid}>
+                  <TableCell>{department.name}</TableCell>
+                  <TableCell>
+                    {department.activeStatus ? "Active" : "Inactive"}
+                  </TableCell>
+                  <TableCell>{department.description}</TableCell>
                   <TableCell>
                     <Button
                       size="sm"
                       kind="secondary"
-                      onClick={() => handleEditCategory(category)}
-                      style={{ marginRight: "0.5rem" }}
+                      onClick={() => handleEditDepartment(department)}
                     >
                       Edit
                     </Button>
                     <Button
                       size="sm"
                       kind="danger"
-                      onClick={() => handleDeleteCategory(category.uuid)}
+                      onClick={() =>
+                        handleDeleteDepartment(department.uuid || "")
+                      }
                     >
                       Delete
                     </Button>
@@ -239,45 +230,26 @@ export default function OganistaionalDepartment() {
           secondaryButtonText="Cancel"
           onRequestClose={() => setIsModalOpen(false)}
           onRequestSubmit={
-            editingDepartment ? handleSaveCategory : handleAddDepartment
+            editingDepartment ? handleSaveDepartment : handleAddDepartment
           }
         >
           <TextInput
             id="department-name"
             labelText="Department Name"
-            value={newCategory.name}
+            value={newDepartment.name}
             onChange={(e: any) =>
-              setNewCategory({ ...newCategory, name: e.target.value })
+              setNewDepartment({ ...newDepartment, name: e.target.value })
             }
-            style={{ marginBottom: "1rem" }}
           />
-          <Select
-            id="department-activestatus"
-            labelText="Department Active Status"
-            value={newCategory.activeStatus}
-            onChange={(e: any) =>
-              setNewCategory({ ...newCategory, activeStatus: e.target.value })
-            }
-            style={{ marginBottom: "1rem" }}
-          >
-            <SelectItem key={""} text={"Select Status"} value={""} />
-            <SelectItem
-              key={"ENABLED"}
-              text={"ENABLED"}
-              value={UserAccountLoginStatus.ENABLED}
-            />
-            <SelectItem
-              key={"DISABLED"}
-              text={"DISABLED"}
-              value={UserAccountLoginStatus.DISABLED}
-            />
-          </Select>
           <TextInput
             id="department-description"
             labelText="Department Description"
-            value={newCategory.description}
+            value={newDepartment.description}
             onChange={(e: any) =>
-              setNewCategory({ ...newCategory, description: e.target.value })
+              setNewDepartment({
+                ...newDepartment,
+                description: e.target.value,
+              })
             }
           />
         </Modal>

@@ -12,6 +12,7 @@ interface FileMeta {
   fileUrl: string;
   fileName: string;
   fileType: string;
+  userFileName: string;
 }
 
 interface LetterRecipientModel extends LetterRecipient {
@@ -148,6 +149,7 @@ export async function POST(
             fileUrl: `/attachments/${fileName}`,
             fileName: fileName,
             fileType: file.type,
+            userFileName: file.name,
           };
         }
         return null;
@@ -194,7 +196,8 @@ export async function POST(
               letterUuid: letterRequest.uuid,
               fileUrl: file.fileUrl,
               fileType: file.fileType,
-              fileName: file.fileName,
+              systemFileName: file.fileName,
+              userFileName: file.userFileName,
             },
           })
         )

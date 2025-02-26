@@ -127,7 +127,7 @@ export default function InitialSetup() {
         }));
         return;
       }
-
+ 
       setFormData((prev) => ({
         ...prev,
         attachments: [...prev.attachments, ...validFiles],

@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams } from "next/navigation";
 import {
   LtmsUser,
   OrganisationDepartment,
   Person,
-  LtmsUser as User,
   UserRole,
 } from "@prisma/client";
 import {
@@ -14,11 +13,10 @@ import {
   Column,
   Tile,
   Button,
-  InlineLoading,
   Dropdown,
+  SkeletonText,
+  SkeletonPlaceholder,
 } from "@carbon/react";
-import { useFetchUsers } from "app/hooks/useFetchUsers";
-import { useUserAccount } from "app/hooks/useUserAccount";
 import { useUserRoles } from "app/hooks/useUserRoles";
 import { useUserDetails } from "app/hooks/useUserDetails";
 
@@ -30,17 +28,9 @@ interface ExtendedUser extends LtmsUser {
 
 export default function UserDetailsPage() {
   const { uuid } = useParams();
-  // const [user, setUser] = useState<ExtendedUser | null>(null);
-  const [currentUser, setCurrentUser] = useState<ExtendedUser | null>(null);
   const { roles } = useUserRoles();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const {
-    user,
-    isLoading: fetchisloading,
-    error: fetcherror,
-  } = useUserDetails(uuid);
- 
+  const { user, isLoading } = useUserDetails(uuid);
 
   const updateUserStatus = async (action: "approve" | "disable") => {
     if (!user) return;
@@ -52,8 +42,6 @@ export default function UserDetailsPage() {
       if (!response.ok) {
         throw new Error(`Failed to ${action} user: ${response.statusText}`);
       }
-      const updatedUser = await response.json();
-      // setUser(updatedUser);
     } catch (err: any) {
       setError(err.message || "Something went wrong.");
     }
@@ -70,8 +58,6 @@ export default function UserDetailsPage() {
       if (!response.ok) {
         throw new Error("Failed to update role.");
       }
-      const updatedUser = await response.json();
-      // setUser(updatedUser);
     } catch (err: any) {
       setError(err.message || "Something went wrong.");
     }
@@ -79,16 +65,25 @@ export default function UserDetailsPage() {
 
   return (
     <Grid fullWidth>
-      <Column sm={4} md={8} lg={8}>
-        <Tile>
-          <h3>User Details</h3>
+      <Column sm={4} md={6} lg={8}>
+        <Tile style={{ padding: "1.5rem", borderRadius: "8px" }}>
+          <h3 style={{ marginBottom: "1rem" }}>User Details</h3>
+
           {isLoading ? (
-            <InlineLoading description="Loading user details..." />
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              <SkeletonPlaceholder style={{ height: "40px", width: "80%" }} />
+              <SkeletonText width="60%" />
+              <SkeletonText width="50%" />
+              <SkeletonText width="70%" />
+              <SkeletonText width="40%" />
+              <SkeletonText width="30%" />
+              <SkeletonPlaceholder style={{ height: "40px", width: "120px" }} />
+            </div>
           ) : error ? (
             <p style={{ color: "red" }}>{error}</p>
           ) : user ? (
-            <>
-              <h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.8rem" }}>
+              <h4 style={{ fontSize: "1.25rem", fontWeight: "bold" }}>
                 {user.Person?.firstName} {user.Person?.lastName}
               </h4>
               <p>
@@ -98,20 +93,15 @@ export default function UserDetailsPage() {
                 <strong>Email:</strong> {user.email}
               </p>
               <p>
-                <strong>Role:</strong>
-                {currentUser?.uuid === user.uuid ? (
-                  user.UserRole?.name // Display only if it's the current user
-                ) : (
-                  <Dropdown
-                    id="role-dropdown"
-                    items={roles}
-                    itemToString={(role: UserRole) => role.name}
-                    initialSelectedItem={user.UserRole}
-                    onChange={(selectedItem: UserRole) =>
-                      updateUserRole(selectedItem)
-                    }
-                  />
-                )}
+                <strong>Role:</strong>{" "}
+                <Dropdown
+                  id="role-dropdown"
+                  items={roles}
+                  itemToString={(role: UserRole) => role.name}
+                  initialSelectedItem={user.UserRole}
+                  onChange={( selectedItem:UserRole) => updateUserRole(selectedItem)}
+                  style={{ width: "200px", display: "inline-block", marginLeft: "0.5rem" }}
+                />
               </p>
               <p>
                 <strong>Login Status:</strong> {user.loginStatus}
@@ -119,27 +109,22 @@ export default function UserDetailsPage() {
               <p>
                 <strong>Approval Status:</strong> {user.approvalStatus}
               </p>
-              <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+
+              <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
                 {user.approvalStatus === "PENDING" && (
-                  <Button
-                    kind="primary"
-                    onClick={() => updateUserStatus("approve")}
-                  >
+                  <Button kind="primary" onClick={() => updateUserStatus("approve")}>
                     Approve User
                   </Button>
                 )}
                 {user.loginStatus === "ENABLED" && (
-                  <Button
-                    kind="danger"
-                    onClick={() => updateUserStatus("disable")}
-                  >
+                  <Button kind="danger" onClick={() => updateUserStatus("disable")}>
                     Disable Login
                   </Button>
                 )}
               </div>
-            </>
+            </div>
           ) : (
-            <p>User not found.</p>
+            <p style={{ color: "gray", fontSize: "1.1rem" }}>User not found.</p>
           )}
         </Tile>
       </Column>

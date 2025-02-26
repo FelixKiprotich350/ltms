@@ -1,8 +1,9 @@
 declare module "@carbon/react";
 declare module "@carbon-components-react";
-declare module '@carbon/pictograms-react';
+declare module "@carbon/pictograms-react";
+declare module "@carbon/colors";
 declare type SideNavProps = {};
-declare module '*.scss' {
-    const content: Record<string, string>;
-    export default content;
-  }
+declare module "*.scss" {
+  const content: Record<string, string>;
+  export default content;
+}

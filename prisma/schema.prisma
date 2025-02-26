@@ -197,12 +197,13 @@ model LetterRecipient {
 }
 
 model Attachment {
-  id         String        @id @default(uuid())
-  letterUuid String
-  letter     LetterRequest @relation(fields: [letterUuid], references: [uuid])
-  fileUrl    String
-  fileType   String
-  fileName   String
+  id             String        @id @default(uuid())
+  letterUuid     String
+  letter         LetterRequest @relation(fields: [letterUuid], references: [uuid])
+  fileUrl        String
+  fileType       String
+  systemFileName String
+  userFileName   String
 
   createdAt DateTime @default(now())
 

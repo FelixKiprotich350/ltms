@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "lib/prisma";
 import fs from "fs";
 import path from "path";
-import mime from "mime"; 
+import mime from "mime";
 import { getServerSession } from "next-auth";
 import { authOptions } from "app/api/auth/[...nextauth]/route";
 
@@ -10,6 +10,7 @@ interface FileMeta {
   fileUrl: string;
   fileName: string;
   fileType: string;
+  userFileName: string;
 }
 export async function POST(request: Request) {
   try {
@@ -84,6 +85,7 @@ export async function POST(request: Request) {
             fileUrl: `/attachments/${fileName}`,
             fileName: fileName,
             fileType: file.type,
+            userFileName: file.name,
           };
         }
         return null;
@@ -130,7 +132,8 @@ export async function POST(request: Request) {
               letterUuid: letterRequest.uuid,
               fileUrl: file.fileUrl,
               fileType: file.fileType,
-              fileName: file.fileName,
+              systemFileName: file.fileName,
+              userFileName: file.userFileName,
             },
           })
         )
