@@ -76,6 +76,7 @@ model PermissionMaster {
   uuid           String           @id @default(uuid()) // UUID as a unique field
   codeName       String           @unique
   commonName     String           @unique
+  category       String
   description    String?
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt

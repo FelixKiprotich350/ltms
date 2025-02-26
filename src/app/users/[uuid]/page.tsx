@@ -13,19 +13,25 @@ import {
   Column,
   Tile,
   Button,
-  Dropdown,
-  SkeletonText,
-  SkeletonPlaceholder,
   Checkbox,
+  Table,
+  TableHead,
+  TableRow,
+  TableHeader,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRowExpanded,
+  SkeletonPlaceholder,
 } from "@carbon/react";
 import { useUserRoles } from "app/hooks/useUserRoles";
 import { useUserDetails } from "app/hooks/useUserDetails";
 
-interface ExtendedUser extends LtmsUser {
-  Person?: Person;
-  UserRole?: UserRole;
-  Department?: OrganisationDepartment;
-  permissions?: string[];
+interface Permission {
+  uuid: string;
+  commonName: string;
+  category: string;
+  description: string;
 }
 
 export default function UserDetailsPage() {
@@ -33,53 +39,66 @@ export default function UserDetailsPage() {
   const { roles } = useUserRoles();
   const [error, setError] = useState<string | null>(null);
   const { user, isLoading } = useUserDetails(uuid);
-  const [permissions, setPermissions] = useState<string[]>([]);
+  const [permissions, setPermissions] = useState<Permission[]>([]);
   const [userPermissions, setUserPermissions] = useState<string[]>([]);
 
-  // Fetch all available permissions
+  // Fetch permissions from API
   useEffect(() => {
-    const fetchPermissions = async () => {
+    async function fetchPermissions() {
       try {
         const response = await fetch("/api/permissions");
-        if (!response.ok) throw new Error("Failed to fetch permissions.");
-        const data: string[] = await response.json();
+        if (!response.ok) {
+          throw new Error("Failed to fetch permissions.");
+        }
+        const data = await response.json();
         setPermissions(data);
       } catch (err: any) {
         setError(err.message || "Something went wrong.");
       }
-    };
-
+    }
     fetchPermissions();
-  }, [uuid]);
+  }, []);
 
-  const updateUserPermissions = async (updatedPermissions: string[]) => {
+  // Fetch user permissions
+  // useEffect(() => {
+  //   if (!user) return;
+  //   async function fetchUserPermissions() {
+  //     try {
+  //       const response = await fetch(`/api/users/${uuid}/permissions`);
+  //       if (!response.ok) {
+  //         throw new Error("Failed to fetch user permissions.");
+  //       }
+  //       const data = await response.json();
+  //       setUserPermissions(data);
+  //     } catch (err: any) {
+  //       setError(err.message || "Something went wrong.");
+  //     }
+  //   }
+  //   fetchUserPermissions();
+  // }, [user]);
+
+  // Handle permission assignment
+  const handlePermissionChange = async (permissionId: string, isChecked: boolean) => {
     try {
-      const response = await fetch(`/api/users/${uuid}/permissions`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ permissions: updatedPermissions }),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to update permissions.");
-      }
-      setUserPermissions(updatedPermissions);
+      // const response = await fetch(`/api/users/${uuid}/permissions`, {
+      //   method: isChecked ? "POST" : "DELETE",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({ permissionId }),
+      // });
+      // if (!response.ok) {
+      //   throw new Error("Failed to update permissions.");
+      // }
+      setUserPermissions((prev) =>
+        isChecked ? [...prev, permissionId] : prev.filter((id) => id !== permissionId)
+      );
     } catch (err: any) {
       setError(err.message || "Something went wrong.");
     }
   };
 
-  const handlePermissionChange = (permission: string, checked: boolean) => {
-    const updatedPermissions = checked
-      ? [...userPermissions, permission]
-      : userPermissions.filter((perm) => perm !== permission);
-
-    setUserPermissions(updatedPermissions);
-    updateUserPermissions(updatedPermissions);
-  };
-
   return (
     <Grid fullWidth>
-      <Column sm={4} md={6} lg={8}>
+      <Column sm={16} md={16} lg={16}>
         <Tile style={{ padding: "1.5rem", borderRadius: "8px" }}>
           <h3 style={{ marginBottom: "1rem" }}>User Details</h3>
 
@@ -100,25 +119,36 @@ export default function UserDetailsPage() {
               </p>
 
               <h4>Permissions</h4>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "0.5rem",
-                }}
-              >
-                {permissions.map((permission) => (
-                  <Checkbox
-                    key={permission}
-                    id={permission}
-                    labelText={permission}
-                    checked={userPermissions.includes(permission)}
-                    onChange={(e: any) =>
-                      handlePermissionChange(permission, e.target.checked)
-                    }
-                  />
-                ))}
-              </div>
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableHeader>Assign</TableHeader>
+                      <TableHeader>Common Name</TableHeader>
+                      <TableHeader>Category</TableHeader>
+                      <TableHeader>Description</TableHeader>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {permissions.map((permission) => (
+                      <TableRow key={permission.uuid}>
+                        <TableCell>
+                          <Checkbox
+                            id={permission.uuid}
+                            checked={userPermissions.includes(permission.uuid)}
+                            onChange={(e: any) =>
+                              handlePermissionChange(permission.uuid, e.target.checked)
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>{permission.commonName}</TableCell>
+                        <TableCell>{permission.category}</TableCell>
+                        <TableCell>{permission.description}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
 
               <div
                 style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}
