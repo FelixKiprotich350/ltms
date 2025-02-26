@@ -59,7 +59,7 @@ model LtmsUser {
 
   DraftedLetterRequest DraftedLetterRequest[] @relation("LetterSender")
 
-  UserPermission UserPermission[] @relation(name: "LtmsUserToUserPermission")
+  UserPermissions UserPermission[] @relation(name: "LtmsUserToUserPermission")
 }
 
 model UserRole {

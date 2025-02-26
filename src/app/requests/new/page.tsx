@@ -161,7 +161,7 @@ export default function InitialSetup() {
     formDataToSend.append("letterbody", formData.letterbody);
     formDataToSend.append("categoryUuid", formData.categoryUuid);
     formDataToSend.append("senderType", formData.senderType);
-    formDataToSend.append("letterIsArchived", formData.letterIsArchived);
+    // formDataToSend.append("letterIsArchived", formData.letterIsArchived);
     formDataToSend.append("externalReference", formData.externalReference);
     // Append multiple selected departments
     formData.recipientDepartments.forEach((dept) => {

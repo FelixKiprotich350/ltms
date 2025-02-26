@@ -29,9 +29,9 @@ export async function GET(
       Person: true,
       UserRole: true,
       Department: true,
+      UserPermissions: true,
     },
   });
 
   return NextResponse.json(user);
 }
- 

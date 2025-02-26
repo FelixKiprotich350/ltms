@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import {
   LtmsUser,
@@ -16,6 +16,7 @@ import {
   Dropdown,
   SkeletonText,
   SkeletonPlaceholder,
+  Checkbox,
 } from "@carbon/react";
 import { useUserRoles } from "app/hooks/useUserRoles";
 import { useUserDetails } from "app/hooks/useUserDetails";
@@ -24,6 +25,7 @@ interface ExtendedUser extends LtmsUser {
   Person?: Person;
   UserRole?: UserRole;
   Department?: OrganisationDepartment;
+  permissions?: string[];
 }
 
 export default function UserDetailsPage() {
@@ -31,36 +33,48 @@ export default function UserDetailsPage() {
   const { roles } = useUserRoles();
   const [error, setError] = useState<string | null>(null);
   const { user, isLoading } = useUserDetails(uuid);
+  const [permissions, setPermissions] = useState<string[]>([]);
+  const [userPermissions, setUserPermissions] = useState<string[]>([]);
 
-  const updateUserStatus = async (action: "approve" | "disable") => {
-    if (!user) return;
+  // Fetch all available permissions
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      try {
+        const response = await fetch("/api/permissions");
+        if (!response.ok) throw new Error("Failed to fetch permissions.");
+        const data: string[] = await response.json();
+        setPermissions(data);
+      } catch (err: any) {
+        setError(err.message || "Something went wrong.");
+      }
+    };
+
+    fetchPermissions();
+  }, [uuid]);
+
+  const updateUserPermissions = async (updatedPermissions: string[]) => {
     try {
-      const response = await fetch(`/api/users/${uuid}/${action}`, {
-        method: "POST",
+      const response = await fetch(`/api/users/${uuid}/permissions`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ permissions: updatedPermissions }),
       });
       if (!response.ok) {
-        throw new Error(`Failed to ${action} user: ${response.statusText}`);
+        throw new Error("Failed to update permissions.");
       }
+      setUserPermissions(updatedPermissions);
     } catch (err: any) {
       setError(err.message || "Something went wrong.");
     }
   };
 
-  const updateUserRole = async (newRole: UserRole) => {
-    if (!user) return;
-    try {
-      const response = await fetch(`/api/users/${uuid}/role`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roleId: newRole.uuid }),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to update role.");
-      }
-    } catch (err: any) {
-      setError(err.message || "Something went wrong.");
-    }
+  const handlePermissionChange = (permission: string, checked: boolean) => {
+    const updatedPermissions = checked
+      ? [...userPermissions, permission]
+      : userPermissions.filter((perm) => perm !== permission);
+
+    setUserPermissions(updatedPermissions);
+    updateUserPermissions(updatedPermissions);
   };
 
   return (
@@ -70,61 +84,52 @@ export default function UserDetailsPage() {
           <h3 style={{ marginBottom: "1rem" }}>User Details</h3>
 
           {isLoading ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              <SkeletonPlaceholder style={{ height: "40px", width: "80%" }} />
-              <SkeletonText width="60%" />
-              <SkeletonText width="50%" />
-              <SkeletonText width="70%" />
-              <SkeletonText width="40%" />
-              <SkeletonText width="30%" />
-              <SkeletonPlaceholder style={{ height: "40px", width: "120px" }} />
-            </div>
+            <SkeletonPlaceholder style={{ height: "40px", width: "80%" }} />
           ) : error ? (
             <p style={{ color: "red" }}>{error}</p>
           ) : user ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.8rem" }}>
+            <div>
               <h4 style={{ fontSize: "1.25rem", fontWeight: "bold" }}>
                 {user.Person?.firstName} {user.Person?.lastName}
               </h4>
               <p>
-                <strong>Gender:</strong> {user.Person?.gender}
-              </p>
-              <p>
                 <strong>Email:</strong> {user.email}
               </p>
               <p>
-                <strong>Role:</strong>
-                <Dropdown
-                  id="role-dropdown"
-                  items={roles}
-                  itemToString={(role: UserRole) => role.name}
-                  initialSelectedItem={user.UserRole}
-                  onChange={( selectedItem:UserRole) => updateUserRole(selectedItem)}
-                  style={{ width: "200px", display: "inline-block", marginLeft: "0.5rem" }}
-                />
-              </p>
-              <p>
-                <strong>Login Status:</strong> {user.loginStatus}
-              </p>
-              <p>
-                <strong>Approval Status:</strong> {user.approvalStatus}
+                <strong>Role:</strong> {user.UserRole?.name}
               </p>
 
-              <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
+              <h4>Permissions</h4>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.5rem",
+                }}
+              >
+                {permissions.map((permission) => (
+                  <Checkbox
+                    key={permission}
+                    id={permission}
+                    labelText={permission}
+                    checked={userPermissions.includes(permission)}
+                    onChange={(e: any) =>
+                      handlePermissionChange(permission, e.target.checked)
+                    }
+                  />
+                ))}
+              </div>
+
+              <div
+                style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}
+              >
                 {user.approvalStatus === "PENDING" && (
-                  <Button kind="primary" onClick={() => updateUserStatus("approve")}>
-                    Approve User
-                  </Button>
-                )}
-                {user.loginStatus === "ENABLED" && (
-                  <Button kind="danger" onClick={() => updateUserStatus("disable")}>
-                    Disable Login
-                  </Button>
+                  <Button kind="primary">Approve User</Button>
                 )}
               </div>
             </div>
           ) : (
-            <p style={{ color: "gray", fontSize: "1.1rem" }}>User not found.</p>
+            <p>User not found.</p>
           )}
         </Tile>
       </Column>

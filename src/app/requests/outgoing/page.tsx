@@ -146,11 +146,6 @@ export default function OutgoingLetterRequests() {
               <strong>Sender:</strong> {selectedRequest.SenderDepartment?.name}(
               {selectedRequest.SenderUser?.email})
             </p>
-
-            <p>
-              <strong>Confidentiality:</strong>
-              {selectedRequest.confidentiality.toUpperCase()}
-            </p>
             <p>
               <strong>Status:</strong> {selectedRequest.status}
             </p>

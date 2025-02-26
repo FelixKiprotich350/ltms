@@ -23,6 +23,7 @@ import "@/styles/chatPageLayout.css";
 interface LetterRequestModel extends LetterRequest {
   SenderDepartment: OrganisationDepartment;
   SenderUser: LtmsUser;
+  recipientLetterReceivedstatus: string;
 }
 
 export default function IncomingLetterRequests() {
@@ -238,11 +239,15 @@ export default function IncomingLetterRequests() {
                       margin: "0",
                       textAlign: "right",
                       fontWeight: "bold",
-                      color: item.status === "PENDING" ? "darkred" : "green",
+                      color:
+                        item.recipientLetterReceivedstatus === "PENDING"
+                          ? "darkred"
+                          : "green",
                       fontSize: "0.8rem",
                     }}
                   >
-                    {item.status === LeterRecipientReceivedStatus.PENDING
+                    {item.recipientLetterReceivedstatus ===
+                    LeterRecipientReceivedStatus.PENDING
                       ? "Pending"
                       : "Received"}
                   </p>
@@ -263,9 +268,10 @@ export default function IncomingLetterRequests() {
                 <strong>Sender:</strong>
                 {selectedRequest.SenderDepartment?.name}(
                 {selectedRequest.SenderUser?.email})
-              </p> 
+              </p>
               <p>
-                <strong>Status:</strong> {selectedRequest.status}
+                <strong>Status:</strong>{" "}
+                {selectedRequest.recipientLetterReceivedstatus}
               </p>
               <p>
                 <strong>Created At:</strong>
@@ -282,7 +288,7 @@ export default function IncomingLetterRequests() {
             </div>
 
             <div className="letterFooter">
-              {selectedRequest.status ===
+              {selectedRequest.recipientLetterReceivedstatus ===
               LeterRecipientReceivedStatus.PENDING ? (
                 <Button
                   kind="ghost"
