@@ -78,30 +78,35 @@ const ContentProviders: React.FC<ProvidersProps> = ({ children }) => {
         logOutUser={logOutUser}
         handleProfileClick={handleProfileClick}
       />
+      <div
+        style={{
+          display: "flex",
+          flex: 1,
+          overflow: "auto",
+          // width: "100%",
+        }}
+      >
+        <Theme theme="g10">
+          {session?.user && (
+            <LeftPanelMenu
+              isSideNavExpanded={isSideNavExpanded}
+              currentUser={session?.user}
+            />
+          )}
 
-      <Theme theme="g10">
-        {session?.user && (
-          <LeftPanelMenu
-            isSideNavExpanded={isSideNavExpanded}
-            currentUser={session?.user}
-          />
-        )}
-        <Content>
-          <Theme theme="white">
-            <div
-              style={{
-                flex: 1,
-                overflowY: "auto",
-                padding: "5px",
-                maxHeight: "calc(100vh - 48px)",
-                width: "100%",
-              }}
-            >
-              {children}
-            </div>
-          </Theme>
-        </Content>
-      </Theme>
+          <Content
+            style={{
+              flex: 1,
+              overflowY: "auto",
+              padding: "5px",
+              height: "calc(100vh - 48px)",
+              width: "100%",
+            }}
+          >
+            <Theme theme="white">{children}</Theme>
+          </Content>
+        </Theme>
+      </div>
     </div>
   );
 };

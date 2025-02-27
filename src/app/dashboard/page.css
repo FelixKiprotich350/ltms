@@ -1,5 +1,4 @@
 .dashboardContainer {
-  height: calc(100vh - 70px); /* Full height of the viewport */
   padding: 8px;
   overflow: hidden; /* Prevents scrolling */
   display: flex;

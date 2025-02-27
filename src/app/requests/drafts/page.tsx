@@ -79,7 +79,6 @@ export default function DraftedLetterRequests() {
       style={{
         display: "flex",
         gap: "1rem",
-        height: "calc(100vh - 60px)",
         padding: "8px",
         overflow: "hidden",
         borderStyle: "solid",

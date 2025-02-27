@@ -1,8 +1,8 @@
 // prisma/schema.prisma
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL") // Use environment variable to store the connection URL
+  provider         = "mysql"
+  url              = env("DATABASE_URL") // Use environment variable to store the connection URL
 }
 
 generator client {
