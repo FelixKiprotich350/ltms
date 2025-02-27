@@ -81,7 +81,13 @@ const ContentProviders: React.FC<ProvidersProps> = ({ children }) => {
         )}
         <Content>
           <Theme theme="white">
-            <div style={{ padding: "5px" }}>{children}</div>
+            <div
+              style={{
+                padding: "5px",
+              }}
+            >
+              {children}
+            </div>
           </Theme>
         </Content>
       </Theme>

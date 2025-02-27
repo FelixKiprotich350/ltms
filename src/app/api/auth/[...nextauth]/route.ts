@@ -6,7 +6,9 @@ import bcrypt from "bcryptjs";
 import {
   LtmsUser,
   OrganisationDepartment,
+  PermissionMaster,
   Person,
+  UserPermission,
   UserRole,
 } from "@prisma/client";
 import { AdapterUser } from "next-auth/adapters";
@@ -18,6 +20,7 @@ interface CustomUser extends AdapterUser {
   department: OrganisationDepartment;
   person: Person;
   fullName: string;
+  permissions: UserPermission[];
 }
 
 export const authOptions: NextAuthOptions = {
@@ -41,6 +44,7 @@ export const authOptions: NextAuthOptions = {
             UserRole: true,
             Department: true,
             Person: true,
+            UserPermissions: true,
           },
         });
 
@@ -63,12 +67,12 @@ export const authOptions: NextAuthOptions = {
           role: user.UserRole,
           department: user.Department,
           person: user.Person,
+          permissions: user.UserPermissions,
           emailVerified: null,
         };
 
         return customUser;
       },
-      
     }),
   ],
   pages: {
@@ -93,6 +97,7 @@ export const authOptions: NextAuthOptions = {
         token.department = customUser.department;
         token.person = customUser.person;
         token.fullName = customUser.fullName;
+        token.permissions = customUser.permissions;
       }
       return token;
     },
@@ -105,6 +110,7 @@ export const authOptions: NextAuthOptions = {
           UserRole: token.role as UserRole,
           OrganisationDepartment: token.department as OrganisationDepartment,
           Person: token.person as Person,
+          UserPermissions: token.permissions as UserPermission[],
         } as ExtendedUser;
       }
       return session;
@@ -129,6 +135,7 @@ declare module "next-auth" {
     UserRole: UserRole;
     OrganisationDepartment: OrganisationDepartment;
     Person: Person;
+    UserPermissions: UserPermission[];
   }
 }
 

@@ -2,6 +2,7 @@ import {
   LtmsUser,
   OrganisationDepartment,
   Person,
+  UserPermission,
   UserRole,
   LtmsUser as user,
 } from "@prisma/client";
@@ -11,6 +12,7 @@ interface ExtendedUser extends LtmsUser {
   Person?: Person;
   UserRole?: UserRole;
   Department?: OrganisationDepartment;
+  UserPermissions?: UserPermission[];
 }
 
 export const useUserDetails = (uuid: string | null) => {

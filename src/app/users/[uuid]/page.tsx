@@ -41,7 +41,6 @@ export default function UserDetailsPage() {
   const { user, isLoading } = useUserDetails(uuid);
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [userPermissions, setUserPermissions] = useState<string[]>([]);
-
   // Fetch permissions from API
   useEffect(() => {
     async function fetchPermissions() {
@@ -51,6 +50,7 @@ export default function UserDetailsPage() {
           throw new Error("Failed to fetch permissions.");
         }
         const data = await response.json();
+
         setPermissions(data);
       } catch (err: any) {
         setError(err.message || "Something went wrong.");
@@ -164,6 +164,7 @@ export default function UserDetailsPage() {
                                   checked={userPermissions.includes(
                                     permission.uuid
                                   )}
+                                  labelText=""
                                   onChange={(e: any) =>
                                     handlePermissionChange(
                                       permission.uuid,
