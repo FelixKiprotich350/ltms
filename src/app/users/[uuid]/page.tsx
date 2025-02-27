@@ -77,8 +77,18 @@ export default function UserDetailsPage() {
   //   fetchUserPermissions();
   // }, [user]);
 
+  const groupedPermissions = permissions.reduce((acc, permission) => {
+    if (!acc[permission.category]) {
+      acc[permission.category] = [];
+    }
+    acc[permission.category].push(permission);
+    return acc;
+  }, {} as Record<string, typeof permissions>);
   // Handle permission assignment
-  const handlePermissionChange = async (permissionId: string, isChecked: boolean) => {
+  const handlePermissionChange = async (
+    permissionId: string,
+    isChecked: boolean
+  ) => {
     try {
       // const response = await fetch(`/api/users/${uuid}/permissions`, {
       //   method: isChecked ? "POST" : "DELETE",
@@ -89,7 +99,9 @@ export default function UserDetailsPage() {
       //   throw new Error("Failed to update permissions.");
       // }
       setUserPermissions((prev) =>
-        isChecked ? [...prev, permissionId] : prev.filter((id) => id !== permissionId)
+        isChecked
+          ? [...prev, permissionId]
+          : prev.filter((id) => id !== permissionId)
       );
     } catch (err: any) {
       setError(err.message || "Something went wrong.");
@@ -130,22 +142,44 @@ export default function UserDetailsPage() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {permissions.map((permission) => (
-                      <TableRow key={permission.uuid}>
-                        <TableCell>
-                          <Checkbox
-                            id={permission.uuid}
-                            checked={userPermissions.includes(permission.uuid)}
-                            onChange={(e: any) =>
-                              handlePermissionChange(permission.uuid, e.target.checked)
-                            }
-                          />
-                        </TableCell>
-                        <TableCell>{permission.commonName}</TableCell>
-                        <TableCell>{permission.category}</TableCell>
-                        <TableCell>{permission.description}</TableCell>
-                      </TableRow>
-                    ))}
+                    {Object.entries(groupedPermissions).map(
+                      ([category, perms]) => (
+                        <React.Fragment key={category}>
+                          <TableRow>
+                            <TableCell
+                              colSpan={4}
+                              style={{
+                                fontWeight: "bold",
+                                background: "#f4f4f4",
+                              }}
+                            >
+                              {category}
+                            </TableCell>
+                          </TableRow>
+                          {perms.map((permission) => (
+                            <TableRow key={permission.uuid}>
+                              <TableCell>
+                                <Checkbox
+                                  id={permission.uuid}
+                                  checked={userPermissions.includes(
+                                    permission.uuid
+                                  )}
+                                  onChange={(e: any) =>
+                                    handlePermissionChange(
+                                      permission.uuid,
+                                      e.target.checked
+                                    )
+                                  }
+                                />
+                              </TableCell>
+                              <TableCell>{permission.commonName}</TableCell>
+                              <TableCell>{permission.category}</TableCell>
+                              <TableCell>{permission.description}</TableCell>
+                            </TableRow>
+                          ))}
+                        </React.Fragment>
+                      )
+                    )}
                   </TableBody>
                 </Table>
               </TableContainer>
