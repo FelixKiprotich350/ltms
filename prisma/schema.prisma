@@ -1,8 +1,8 @@
 // prisma/schema.prisma
 
 datasource db {
-  provider         = "mysql"
-  url              = env("DATABASE_URL") // Use environment variable to store the connection URL
+  provider = "mysql"
+  url      = env("DATABASE_URL") // Use environment variable to store the connection URL
 }
 
 generator client {
@@ -47,7 +47,6 @@ model LtmsUser {
   Department       OrganisationDepartment? @relation(fields: [departmentUuid], references: [uuid])
   groups           UserGroupMember[]
   letters          LetterRequest[]         @relation("LetterSender")
-  approvals        Approval[]
   logs             Log[]
   notifications    Notification[]
   createdAt        DateTime                @default(now())
@@ -159,7 +158,6 @@ model LetterRequest {
   SenderUser           LtmsUser               @relation("LetterSender", fields: [senderUserUuid], references: [uuid])
   senderDepartmentUuid String
   SenderDepartment     OrganisationDepartment @relation("LetterDepartment", fields: [senderDepartmentUuid], references: [uuid])
-  Approvals            Approval[]
   Attachments          Attachment[]
   Logs                 Log[]
   LetterRecipients     LetterRecipient[]      @relation(name: "LetterstoRecipients")
@@ -183,7 +181,6 @@ model DraftedLetterRequest {
   SenderUser           LtmsUser               @relation("LetterSender", fields: [senderUserUuid], references: [uuid])
   senderDepartmentUuid String
   SenderDepartment     OrganisationDepartment @relation("LetterDepartment", fields: [senderDepartmentUuid], references: [uuid])
-  Approvals            Approval[]
   Attachments          Attachment[]
   Logs                 Log[]
   LetterRecipients     LetterRecipient[]      @relation(name: "LetterstoRecipients")
@@ -269,41 +266,29 @@ enum LetterStatus {
   COMPLETED
 }
 
-model Approval {
-  id         String         @id @default(uuid())
-  letterUuid String
-  letter     LetterRequest  @relation(fields: [letterUuid], references: [uuid])
-  userUuid   String
-  user       LtmsUser       @relation(fields: [userUuid], references: [uuid])
-  status     ApprovalStatus @default(PENDING)
-  remarks    String?
-  step       Int // Multi-level approval sequence
-  deadline   DateTime? // Auto-escalation based on deadline
-  escalated  Boolean        @default(false) // Mark if escalated
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  DraftedLetterRequest DraftedLetterRequest[]
-}
-
-enum ApprovalStatus {
-  PENDING
-  APPROVED
-  REJECTED
+//Notifications
+model NotificationMaster {
+  uuid               String         @id @default(uuid())
+  codeName           String         @unique
+  commonName         String         @unique
+  description        String?
+  isEnabled          Boolean        @default(true)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  ChildNotifications Notification[] @relation(name: "NotificationMasterToNotificationItem")
 }
 
 model Notification {
-  id       String           @id @default(uuid())
-  userUuid String
-  user     LtmsUser         @relation(fields: [userUuid], references: [uuid])
-  message  String
-  read     Boolean          @default(false)
-  type     NotificationType
-  sentAt   DateTime         @default(now())
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  uuid                   String              @id @default(uuid())
+  userUuid               String
+  UserToNotify           LtmsUser            @relation(fields: [userUuid], references: [uuid])
+  message                String
+  read                   Boolean             @default(false)
+  notificationMasterUuid String
+  sentAt                 DateTime            @default(now())
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+  NotificationMaster     NotificationMaster? @relation(name: "NotificationMasterToNotificationItem", fields: [notificationMasterUuid], references: [uuid])
 }
 
 enum NotificationType {

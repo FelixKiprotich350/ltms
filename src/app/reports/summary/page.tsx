@@ -109,55 +109,6 @@ export default function Reports() {
         <SelectItem value="users" text="Users Report" />
         <SelectItem value="departments" text="Departments Report" />
       </Select>
-
-      {reportType === "categories" && (
-        <TableContainer title="Categories List">
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableHeader>ID</TableHeader>
-                <TableHeader>Name</TableHeader>
-                <TableHeader>Description</TableHeader>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {categories.map((category) => (
-                <TableRow key={category.id}>
-                  <TableCell>{category.id}</TableCell>
-                  <TableCell>{category.name}</TableCell>
-                  <TableCell>{category.description}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-
-      {reportType !== "categories" &&
-        reports.map((report) => (
-          <TableContainer key={report.id} title={`Report: ${report.date}`}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  {Object.keys(report.details[0]).map((key) => (
-                    <TableHeader key={key}>
-                      {key.charAt(0).toUpperCase() + key.slice(1)}
-                    </TableHeader>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {report.details.map((detail, idx) => (
-                  <TableRow key={idx}>
-                    {Object.values(detail).map((value, index) => (
-                      <TableCell key={index}>{value}</TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        ))}
     </div>
   );
 }

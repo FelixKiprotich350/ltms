@@ -32,12 +32,15 @@ const ContentProviders: React.FC<ProvidersProps> = ({ children }) => {
 
   useEffect(() => {
     if (status === "unauthenticated" && pathname !== "/signing") {
-      console.log("User unauthenticated, redirecting...");
-
       const callbackUrl =
         searchParams.get("callbackUrl") ?? encodeURIComponent(pathname);
 
       router.replace(`/signing?callbackUrl=${callbackUrl}`);
+    }
+    if (status === "authenticated" && pathname == "/signing") {
+      const search = searchParams.get("callbackUrl") ?? "dashboard";
+      const callbackUrl = search?.includes("/signing") ? "/dashboard" : search;
+      router.push(callbackUrl);
     }
   }, [status, router, searchParams, pathname]);
 
@@ -62,7 +65,9 @@ const ContentProviders: React.FC<ProvidersProps> = ({ children }) => {
     signOut({ callbackUrl: "/signing" });
   };
 
-  const handleProfileClick = () => {router.push("/myaccount/profile")};
+  const handleProfileClick = () => {
+    router.push("/myaccount/profile");
+  };
 
   return (
     <div

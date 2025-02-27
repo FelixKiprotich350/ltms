@@ -106,19 +106,19 @@ const LeftPanelMenu: React.FC<LeftPanelMenuProps> = ({
           </Link>
         </SideNavMenu>
         <SideNavMenu title="Reports">
-          <Link href="/reports/summary" legacyBehavior>
+          <Link href="/reports/summary" passHref legacyBehavior>
             <SideNavMenuItem>Summary Reports</SideNavMenuItem>
           </Link>
-          <Link href="/reports/letterrlist" legacyBehavior>
+          <Link href="/reports/letterrlist" passHref legacyBehavior>
             <SideNavMenuItem>Letters by Department</SideNavMenuItem>
           </Link>
-          <Link href="/reports/payments" legacyBehavior>
+          <Link href="/reports/payments" passHref legacyBehavior>
             <SideNavMenuItem>Letters by Category</SideNavMenuItem>
           </Link>
-          <Link href="/reports/payments" legacyBehavior>
+          <Link href="/reports/payments" passHref legacyBehavior>
             <SideNavMenuItem>Notification Reports</SideNavMenuItem>
           </Link>
-          <Link href="/reports/users" legacyBehavior>
+          <Link href="/reports/users" passHref legacyBehavior>
             <SideNavMenuItem>User Reports</SideNavMenuItem>
           </Link>
         </SideNavMenu>
@@ -128,7 +128,7 @@ const LeftPanelMenu: React.FC<LeftPanelMenuProps> = ({
           </Link>
           <Link href="/myaccount/prefferences" passHref legacyBehavior>
             <SideNavMenuItem>Prefferences</SideNavMenuItem>
-          </Link> 
+          </Link>
         </SideNavMenu>
       </SideNavItems>
     </SideNav>
