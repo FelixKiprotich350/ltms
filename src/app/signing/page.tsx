@@ -28,12 +28,6 @@ export default function LoginComponent() {
   const [activeTab, setActiveTab] = useState<number>(0); // Track active tab (login or signup)
   const searchParams = useSearchParams();
 
-  // useEffect(() => {
-  //   if (searchParams.get("reload") === "true") {
-  //     window.location.replace("/signing"); // Forces a full reload
-  //   }
-  // }, [searchParams]);
-
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -41,17 +35,19 @@ export default function LoginComponent() {
       setError("Both email and password are required.");
       return;
     }
+
     const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+
     const result = await signIn("credentials", {
       email,
       password,
-      redirect: false,
+      redirect: false, // Prevent automatic redirection
     });
 
     if (result?.error) {
       setError("Invalid email or password.");
     } else {
-      window.location.href = callbackUrl;
+      window.location.href = callbackUrl; // Redirect to the original page
     }
   };
 

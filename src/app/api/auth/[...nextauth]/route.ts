@@ -75,9 +75,9 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  pages: {
-    signIn: "/signing",
-  },
+  // pages: {
+  //   signIn: "/signing",
+  // },
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",

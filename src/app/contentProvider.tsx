@@ -2,7 +2,7 @@
 
 import React, { ReactNode, useEffect, useState } from "react";
 import { Theme, Content } from "@carbon/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 import LayoutHeaderComponent from "./layoutComponents/layouHeader";
@@ -22,22 +22,25 @@ interface ExtendedLtmsUser extends LtmsUser {
   OrganisationDepartment: OrganisationDepartment;
   Person: Person;
 }
+
 const ContentProviders: React.FC<ProvidersProps> = ({ children }) => {
-  const { data: session, status, update } = useSession();
+  const { data: session, status } = useSession();
   const [isSideNavExpanded, setIsSideNavExpanded] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname(); // Get current route
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      console.log("------------Unauthenticated");
-      const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
-      console.log("------------Unauthenticated", callbackUrl);
+    if (status === "unauthenticated" && pathname !== "/signing") {
+      console.log("User unauthenticated, redirecting...");
 
-      // const callbackUrl = encodeURIComponent(window.location.pathname);
+      const callbackUrl =
+        searchParams.get("callbackUrl") ?? encodeURIComponent(pathname);
+
       router.replace(`/signing?callbackUrl=${callbackUrl}`);
     }
-  }, [status]);
+  }, [status, router, searchParams, pathname]);
+
   useEffect(() => {
     const storedState = localStorage.getItem("sideNavExpanded");
     if (storedState !== null) {
@@ -59,7 +62,7 @@ const ContentProviders: React.FC<ProvidersProps> = ({ children }) => {
     signOut({ callbackUrl: "/signing" });
   };
 
-  const handleProfileClick = () => {};
+  const handleProfileClick = () => {router.push("/myaccount/profile")};
 
   return (
     <div
