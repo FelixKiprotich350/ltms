@@ -12,7 +12,4 @@ export async function GET() {
       { status: 500 }
     );
   }
-  finally{
-      prisma.$disconnect();
-    }
 }

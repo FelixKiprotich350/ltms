@@ -27,9 +27,7 @@ export async function GET(
       { error: "Failed to fetch user permissions" },
       { status: 500 }
     );
-  } finally {
-    prisma.$disconnect();
-  }
+  }  
 }
 
 // POST: Assign permission to a user
@@ -59,9 +57,7 @@ export async function POST(
       { error: "Failed to assign permission" },
       { status: 500 }
     );
-  } finally {
-    prisma.$disconnect();
-  }
+  }  
 }
 
 // DELETE: Remove a permission by its UUID
@@ -99,7 +95,5 @@ export async function DELETE(
       { error: "Failed to delete user permission" },
       { status: 500 }
     );
-  } finally {
-    prisma.$disconnect();
-  }
+  } 
 }

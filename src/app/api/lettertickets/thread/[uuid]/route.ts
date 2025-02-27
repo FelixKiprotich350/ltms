@@ -45,9 +45,7 @@ export async function GET(
       { error: "Failed to update request and create ticket" },
       { status: 500 }
     );
-  } finally {
-    prisma.$disconnect();
-  }
+  }  
 }
 
 // Function to generate a unique ticket number

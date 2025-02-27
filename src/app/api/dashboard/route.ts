@@ -64,7 +64,5 @@ export async function GET() {
       { error: "Internal Server Error" },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
-  }
+  }  
 }

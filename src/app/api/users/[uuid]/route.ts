@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 
-const prisma = new PrismaClient();
+import prisma from "lib/prisma";
 
 function generateSaleNumber(): string {
   const timestamp = Math.floor(Date.now() / 1000); // Get current Unix timestamp in seconds

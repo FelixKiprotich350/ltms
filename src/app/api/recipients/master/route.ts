@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
+import prisma from "lib/prisma";
 
 // GET: Fetch all recipients
 export async function GET(request: Request) {
@@ -31,9 +31,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json({ error: "Internal server error" });
-  } finally {
-    prisma.$disconnect();
-  }
+  }  
 }
 function getrecipienttype(rectype: string) {
   if (rectype == "all") {
@@ -88,9 +86,7 @@ export async function POST(req: Request) {
       { error: "Internal server error" },
       { status: 500 }
     );
-  } finally {
-    prisma.$disconnect();
-  }
+  } 
 }
 
 // PUT: Update a recuipient
@@ -114,9 +110,7 @@ export async function PUT(req: Request) {
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json({ error: "Internal server error" });
-  } finally {
-    prisma.$disconnect();
-  }
+  } 
 }
 
 // DELETE: Delete a packaging unit
@@ -135,7 +129,5 @@ export async function DELETE(req: NextRequest) {
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json({ error: "Internal server error" });
-  } finally {
-    prisma.$disconnect();
-  }
+  } 
 }

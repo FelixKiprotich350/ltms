@@ -5,8 +5,7 @@ import {
   UserRole,
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
+import prisma from "lib/prisma";
 
 async function main() {
   // Hash password

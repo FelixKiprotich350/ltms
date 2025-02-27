@@ -29,7 +29,5 @@ export async function PUT(
       { error: "Failed to update category" },
       { status: 500 }
     );
-  } finally {
-    prisma.$disconnect();
-  }
+  }  
 }

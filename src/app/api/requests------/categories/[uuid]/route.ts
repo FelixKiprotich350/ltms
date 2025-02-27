@@ -28,9 +28,7 @@ export async function GET(
       { error: "Failed   to fetch category" },
       { status: 500 }
     );
-  } finally {
-    prisma.$disconnect();
-  }
+  }  
 }
 
 

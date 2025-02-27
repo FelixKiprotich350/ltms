@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
+import prisma from "lib/prisma";
 
 export async function POST(
   req: Request,
@@ -43,7 +43,5 @@ export async function POST(
       { error: "Failed to update user status" },
       { status: 500 }
     );
-  } finally {
-    prisma.$disconnect();
-  }
+  }  
 }

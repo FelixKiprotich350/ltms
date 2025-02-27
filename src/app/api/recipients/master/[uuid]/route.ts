@@ -28,9 +28,7 @@ export async function GET(
       { error: "Failed   to fetch category" },
       { status: 500 }
     );
-  } finally {
-    prisma.$disconnect();
-  }
+  }  
 }
 
 // PUT: Update a category by ID
@@ -60,9 +58,7 @@ export async function PUT(
       { error: "Failed to update category" },
       { status: 500 }
     );
-  } finally {
-    prisma.$disconnect();
-  }
+  }  
 }
 
 // DELETE: Delete a category by ID
@@ -86,7 +82,5 @@ export async function DELETE(
       { error: "Failed to delete category" },
       { status: 500 }
     );
-  } finally {
-    prisma.$disconnect();
-  }
+  } 
 }
