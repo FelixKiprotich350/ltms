@@ -63,6 +63,7 @@ model LtmsUser {
 
 model UserRole {
   uuid                   String                  @id @default(uuid()) // UUID as a unique field
+  codeName               String                  @unique
   name                   String                  @unique
   description            String?
   users                  LtmsUser[]

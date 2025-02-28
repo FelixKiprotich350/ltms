@@ -18,16 +18,21 @@ async function main() {
       {
         uuid: "550e8400-e29b-41d4-a716-446655440010", // Optional (Prisma auto-generates UUID)
         name: "Admin",
+        codeName: "admin",
         description: "Full access to all system features",
       },
+
       {
         uuid: "550e8400-e29b-41d4-a716-446655440011",
         name: "Manager",
+        codeName: "department_manager",
+
         description: "Can manage users and permissions",
       },
       {
         uuid: "550e8400-e29b-41d4-a716-446655440012",
         name: "User",
+        codeName: "user",
         description: "Regular user with limited access",
       },
     ],

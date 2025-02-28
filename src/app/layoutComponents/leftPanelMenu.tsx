@@ -14,6 +14,7 @@ import {
   SideNavMenu,
   SideNavMenuItem,
   SideNavLink,
+  Tag
 } from "@carbon/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -44,7 +45,7 @@ const LeftPanelMenu: React.FC<LeftPanelMenuProps> = ({
             <SideNavMenuItem>New Request</SideNavMenuItem>
           </Link>
           <Link href="/requests/incoming" passHref legacyBehavior>
-            <SideNavMenuItem>Incoming Requests</SideNavMenuItem>
+            <SideNavMenuItem>Incoming Requests <Tag>11</Tag></SideNavMenuItem>
           </Link>
           <Link href="/requests/outgoing" passHref legacyBehavior>
             <SideNavMenuItem>Outgoing Requests</SideNavMenuItem>

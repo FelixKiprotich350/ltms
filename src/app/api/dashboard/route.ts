@@ -1,9 +1,21 @@
 import { NextResponse } from "next/server";
 import prisma from "lib/prisma";
+import { hasPermission } from "lib/authTask";
 
 // GET: Fetch top 10 selling products
 export async function GET() {
   try {
+    const authresponse = await hasPermission("view_admin_dashboard");
+
+    if (!authresponse) {
+      return NextResponse.json(
+        {
+          message: "Unauthorized",
+          error: "view_admin_dashboard permission required",
+        },
+        { status: 401 }
+      );
+    }
     const categories = await prisma.letterCategory.count();
     const departments = await prisma.organisationDepartment.findMany({});
 
@@ -64,5 +76,5 @@ export async function GET() {
       { error: "Internal Server Error" },
       { status: 500 }
     );
-  }  
+  }
 }
