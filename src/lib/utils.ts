@@ -22,5 +22,7 @@ export function matchRoute(pathname: string) {
     (p) => p.route.includes("/[") && p.route.includes("]")
   );
 
+  
+
   return true;
 }

@@ -1,13 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "lib/prisma";
-import { hasPermission } from "lib/authTask";
+import { hasPermissions } from "lib/authTask";
 
 // GET: Get all departments
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const authresponse = await hasPermission(
-      "view_admin_organisation_departments"
-    );
+    const authresponse = await hasPermissions(request, [
+      "view_admin_organisation_departments",
+    ]);
     if (!authresponse) {
       return NextResponse.json(
         {
@@ -30,11 +30,11 @@ export async function GET() {
   }
 }
 // POST: Create a new department
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const authresponse = await hasPermission(
-      "manage_admin_organisation_departments"
-    );
+    const authresponse = await hasPermissions(request, [
+      "manage_admin_organisation_departments",
+    ]);
     if (!authresponse) {
       return NextResponse.json(
         {
