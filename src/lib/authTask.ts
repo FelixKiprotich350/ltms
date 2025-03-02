@@ -67,7 +67,7 @@ export async function hasPermissions(
       );
     }
 
-    return successResponse("Authorized", "Has permission");
+    return successResponse("Authorized", session);
   } catch (error) {
     console.error("Authorization Error:", error);
     return unauthorizedResponse(
@@ -96,7 +96,7 @@ function unauthorizedResponse(
 // Helper function for successful responses
 function successResponse(
   title: string,
-  description: string
+  description: any
 ): AuthorizeApiResponse {
   return {
     isAuthorized: true,

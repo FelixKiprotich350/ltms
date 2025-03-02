@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "lib/prisma";
 import fs from "fs";
 import path from "path";
@@ -6,6 +6,7 @@ import mime from "mime";
 import { getServerSession } from "next-auth";
 import { authOptions } from "app/api/auth/[...nextauth]/route";
 import { LeterRecipientReceivedStatus } from "lib/constants";
+import { hasPermissions } from "lib/authTask";
 
 interface FileMeta {
   fileUrl: string;
@@ -13,41 +14,27 @@ interface FileMeta {
   fileType: string;
   userFileName: string;
 }
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     // Get user session
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const authresponse = await hasPermissions(request, ["create_new_letters"]);
+    if (!authresponse.isAuthorized) {
+      return authresponse.message;
     }
-
-    if (session.user?.uuid == undefined || session.user?.uuid == null) {
+    const res = await authresponse?.message.json();
+    const user = res?.data?.description?.user;
+    if (!user) {
       return NextResponse.json(
-        { error: "User Required in this action." },
-        { status: 401 }
+        { error: "User Data not found" },
+        { status: 400 }
       );
     }
-    // Extract department UUID from the user's session
-    const user = await prisma.ltmsUser.findUnique({
-      where: { uuid: session.user.uuid }, // Assuming email is unique
-      include: {
-        Department: true,
-      },
-    });
 
-    if (!user || !(user as any).Department) {
+    if (!user.OrganisationDepartment) {
       return NextResponse.json(
         { error: "User department not found" },
         { status: 404 }
       );
-    }
-    if (!user) {
-      return NextResponse.json("Unauthorized User", { status: 401 });
-    }
-    if (!user.Department) {
-      return NextResponse.json("Unauthorized User: Missing Department", {
-        status: 401,
-      });
     }
     const formData = await request.formData();
 
@@ -56,7 +43,6 @@ export async function POST(request: Request) {
     const senderType = formData.get("senderType") as string;
     const externalReference = formData.get("externalReference") as string;
     const letterCategoryUuid = formData.get("categoryUuid") as string;
-    const confidentiality = formData.get("confidentiality") as string;
     const recipientDepartments = formData
       .getAll("recipientDepartments")
       .map(String);
@@ -107,7 +93,7 @@ export async function POST(request: Request) {
           externalReference,
           letterCategoryUuid,
           senderUserUuid: user.uuid,
-          senderDepartmentUuid: user.Department?.uuid ?? "",
+          senderDepartmentUuid: user.OrganisationDepartment.uuid ?? "",
           letterIsArchived: false,
         },
       });

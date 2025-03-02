@@ -1,15 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "lib/prisma";
 import fs from "fs";
 import path from "path";
-import mime from "mime";
-import { getServerSession } from "next-auth";
-import { authOptions } from "app/api/auth/[...nextauth]/route";
+import mime from "mime"; 
 import {
   LeterRecipientReceivedStatus,
   LetterSenderRecipientType,
 } from "lib/constants";
 import { LetterRecipient, RecipientsMaster } from "@prisma/client";
+import { hasPermissions } from "lib/authTask";
 
 interface FileMeta {
   fileUrl: string;
@@ -22,40 +21,24 @@ interface LetterRecipientModel extends LetterRecipient {
   RecipientMaster: RecipientsMaster;
 }
 export async function POST(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { uuid: string } }
 ) {
   const { uuid: parentletteruuid } = params;
   try {
     // Get user session
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const authresponse = await hasPermissions(request, ["create_new_letters"]);
+    if (!authresponse.isAuthorized) {
+      return authresponse.message;
     }
-
-    if (session.user?.uuid == undefined || session.user?.uuid == null) {
+    const res = await authresponse?.message.json();
+    const user = res?.data?.description?.user;
+    if (!user) {
       return NextResponse.json(
-        { error: "User Required in this action." },
-        { status: 401 }
+        { error: "User Data not found" },
+        { status: 400 }
       );
     }
-    // Extract department UUID from the user's session
-    const user = await prisma.ltmsUser.findUnique({
-      where: { uuid: session.user.uuid }, // Assuming email is unique
-      include: {
-        Department: true,
-      },
-    });
-    if (!user) {
-      return NextResponse.json("Unknown User", { status: 401 });
-    }
-
-    if (!user.Department) {
-      return NextResponse.json("Unauthorized User: Missing Department", {
-        status: 401,
-      });
-    }
-
     // Extract the parent letter
     const parentletter = await prisma.letterRequest.findUnique({
       where: { uuid: parentletteruuid }, // Assuming email is unique
@@ -82,10 +65,10 @@ export async function POST(
       parentletter.LetterRecipients as Array<LetterRecipientModel>
     ).find(
       (item) =>
-        (item.RecipientMaster?.userPersonUuid == session.user.uuid &&
+        (item.RecipientMaster?.userPersonUuid == user.uuid &&
           item.RecipientMaster?.recipientType ==
             LetterSenderRecipientType.PERSON) ||
-        (item.RecipientMaster?.userPersonUuid == session.user.departmentUuid &&
+        (item.RecipientMaster?.departmentUuid == user.OrganisationDepartment.uuid &&
           item.RecipientMaster?.recipientType ==
             LetterSenderRecipientType.DEPARTMENT)
     );
@@ -173,7 +156,7 @@ export async function POST(
           externalReference: null,
           letterCategoryUuid: parentletter.letterCategoryUuid,
           senderUserUuid: user.uuid,
-          senderDepartmentUuid: user.Department?.uuid ?? "",
+          senderDepartmentUuid: user.OrganisationDepartment?.uuid ?? "",
           letterIsArchived: false,
           parentLetterUuid: parentletter.uuid,
           rootLetterUuid: parentletter.rootLetterUuid

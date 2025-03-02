@@ -1,39 +1,31 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "app/api/auth/[...nextauth]/route";
+import { hasPermissions } from "lib/authTask";
 
 // GET: Fetch outgoing requests
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    // Get user session
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const authresponse = await hasPermissions(request, ["view_outgoing_letters"]);
+    if (!authresponse.isAuthorized) {
+      return authresponse.message;
     }
-
-    if (session.user?.uuid == undefined || session.user?.uuid == null) {
+    const res = await authresponse?.message.json();
+    const user = res?.data?.description?.user;
+    if (!user) {
       return NextResponse.json(
-        { error: "User Required in this action." },
-        { status: 401 }
+        { error: "User Data not found" },
+        { status: 400 }
       );
     }
-    // Extract department UUID from the user's session
-    const user = await prisma.ltmsUser.findUnique({
-      where: { uuid: session.user.uuid }, // Assuming email is unique
-      include: {
-        Department: true,
-      },
-    });
 
-    if (!user || !(user as any).Department) {
+    if (!user.OrganisationDepartment) {
       return NextResponse.json(
         { error: "User department not found" },
         { status: 404 }
       );
     }
-
-    const departmentUuid = (user as any)?.Department?.uuid;
 
     // Parse request parameters
     const url = new URL(request.url);
@@ -46,7 +38,7 @@ export async function GET(request: Request) {
           {
             AND: [
               { senderType: "DEPARTMENT" },
-              { senderDepartmentUuid: departmentUuid },
+              { senderDepartmentUuid: user.OrganisationDepartment.uuid },
             ],
           },
           {
