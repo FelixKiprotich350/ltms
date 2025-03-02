@@ -27,7 +27,7 @@ export async function POST(
   const { uuid: parentletteruuid } = params;
   try {
     // Get user session
-    const authresponse = await hasPermissions(request, ["create_new_letters"]);
+    const authresponse = await hasPermissions(request, ["reply_letters"]);
     if (!authresponse.isAuthorized) {
       return authresponse.message;
     }

@@ -14,7 +14,7 @@ export async function PUT(
 
   try {
     // Get user session
-    const authresponse = await hasPermissions(request, ["create_new_letters"]);
+    const authresponse = await hasPermissions(request, ["receive_new_letters"]);
     if (!authresponse.isAuthorized) {
       return authresponse.message;
     }
