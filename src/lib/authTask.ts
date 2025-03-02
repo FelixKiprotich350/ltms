@@ -2,67 +2,109 @@ import { authOptions } from "app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import apiRoutePermissions from "./apiRoutesPermissions";
-
+import { AuthorizeApiResponse } from "types";
 
 export async function hasPermissions(
   request: NextRequest,
-  requiredPermissions: Array<string>
-): Promise<any> {
+  requiredPermissions: string[]
+): Promise<AuthorizeApiResponse> {
   try {
-    const session = await getServerSession(authOptions);
-
+    // Validate request path
     if (!request.nextUrl.pathname.startsWith("/api/")) {
-      return {
-        isAuthorized: false,
-        message: new NextResponse(
-          JSON.stringify({
-            error: { message: "this Authentication is for APIs only" },
-          }),
-          { status: 400, headers: { "Content-Type": "application/json" } }
-        ),
-      };
+      return unauthorizedResponse(
+        "Authentication for API",
+        "This authentication is for APIs only",
+        400
+      );
     }
+
+    // Fetch session
+    const session = await getServerSession(authOptions);
     if (!session) {
-      return {
-        isAuthorized: false,
-        message: new NextResponse(
-          JSON.stringify({ error: { message: "Authentication required" } }),
-          { status: 401, headers: { "Content-Type": "application/json" } }
-        ),
-      };
+      return unauthorizedResponse(
+        "Authentication Required",
+        "The user is unauthenticated",
+        401
+      );
     }
 
-    const userPermissions = session?.user?.UserPermissions || []; // Ensure session has permissions
+    // Treat empty permissions array as missing required permissions
+    if (!requiredPermissions || requiredPermissions.length === 0) {
+      return unauthorizedResponse(
+        "Forbidden: Missing Permissions",
+        "No permissions were provided for this request.",
+        403
+      );
+    }
 
+    //bad request for invalid permissions
+    if (requiredPermissions.some((perm) => perm.trim() === "")) {
+      return unauthorizedResponse(
+        "Invalid Permission Format",
+        "One or more permissions are empty strings. Please provide valid permissions.",
+        400
+      );
+    }
+
+    // Extract user permissions
+    const userPermissions =
+      session?.user?.UserPermissions?.map(
+        (perm: any) => perm?.PermissionMaster?.codeName
+      ) || [];
+
+    // Check if user has any required permission
     const hasPermission = requiredPermissions.some((perm) =>
-      userPermissions.some(
-        (userPerm: any) => userPerm?.PermissionMaster?.codeName === perm
-      )
+      userPermissions.includes(perm)
     );
 
     if (!hasPermission) {
-      return {
-        isAuthorized: false,
-        message: new NextResponse(
-          JSON.stringify({
-            error: {
-              message: {
-                title:
-                  "Forbidden: Insufficient permissions. One of The following Permisions are required",
-                description: requiredPermissions,
-              },
-            },
-          }),
-          { status: 403, headers: { "Content-Type": "application/json" } }
-        ),
-      };
+      return unauthorizedResponse(
+        "Forbidden: Insufficient permissions",
+        `One of the following permissions is required: ${requiredPermissions.join(
+          ", "
+        )}`,
+        403
+      );
     }
 
-    return { isAuthorized: hasPermission, message: null }; // ✅ Ensure the function returns the result
+    return successResponse("Authorized", "Has permission");
   } catch (error) {
-    console.error("Error checking permission:", error);
-    return false;
+    console.error("Authorization Error:", error);
+    return unauthorizedResponse(
+      "Error Occurred While Authorizing",
+      "An unexpected error occurred",
+      500
+    );
   }
+}
+
+// Helper function for unauthorized responses
+function unauthorizedResponse(
+  title: string,
+  description: string,
+  status: number
+): AuthorizeApiResponse {
+  return {
+    isAuthorized: false,
+    message: new NextResponse(
+      JSON.stringify({ error: { title, description } }),
+      { status, headers: { "Content-Type": "application/json" } }
+    ),
+  };
+}
+
+// Helper function for successful responses
+function successResponse(
+  title: string,
+  description: string
+): AuthorizeApiResponse {
+  return {
+    isAuthorized: true,
+    message: new NextResponse(
+      JSON.stringify({ data: { title, description } }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    ),
+  };
 }
 
 export async function hasRole(role: string): Promise<boolean> {

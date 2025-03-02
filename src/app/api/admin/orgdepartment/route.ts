@@ -8,14 +8,8 @@ export async function GET(request: NextRequest) {
     const authresponse = await hasPermissions(request, [
       "view_admin_organisation_departments",
     ]);
-    if (!authresponse) {
-      return NextResponse.json(
-        {
-          message: "Unauthorized",
-          error: "view_admin_organisation_departments permission required",
-        },
-        { status: 401 }
-      );
+    if (!authresponse.isAuthorized) {
+      return authresponse.message;
     }
     const departments = await prisma.organisationDepartment.findMany({
       include: { Users: true },

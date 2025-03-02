@@ -1,21 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "lib/prisma";
-import { hasPermission } from "lib/authTask";
+import { hasPermissions } from "lib/authTask";
 
 // POST: update a department
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
   try {
-    const authresponse = await hasPermission(
-      "manage_admin_organisation_departments"
-    );
-    if (!authresponse) {
-      return NextResponse.json(
-        {
-          message: "Unauthorized",
-          error: "manage_admin_organisation_departments permission required",
-        },
-        { status: 401 }
-      );
+    const authresponse = await hasPermissions(request, [
+      "manage_admin_organisation_departments",
+    ]);
+    if (!authresponse.isAuthorized) {
+      return authresponse.message;
     }
     const body = await request.json();
     const { name, description, activeStatus } = body;

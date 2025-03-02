@@ -1,19 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "lib/prisma";
-import { hasPermission } from "lib/authTask";
+import { hasPermissions } from "lib/authTask";
 
 // GET: Fetch all departments
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const authresponse = await hasPermission("view_admin_letter_categories");
-    if (!authresponse) {
-      return NextResponse.json(
-        {
-          message: "Unauthorized",
-          error: "view_admin_letter_categories permission required",
-        },
-        { status: 401 }
-      );
+    const authresponse = await hasPermissions(request, [
+      "view_admin_letter_categories",
+    ]);
+    if (!authresponse.isAuthorized) {
+      return authresponse.message;
     }
     const departments = await prisma.letterCategory.findMany({});
     return NextResponse.json(departments, { status: 200 });
@@ -27,17 +23,13 @@ export async function GET() {
 }
 
 // POST: Create a new department
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const authresponse = await hasPermission("manage_admin_letter_categories");
-    if (!authresponse) {
-      return NextResponse.json(
-        {
-          message: "Unauthorized",
-          error: "manage_admin_letter_categories permission required",
-        },
-        { status: 401 }
-      );
+    const authresponse = await hasPermissions(request, [
+      "manage_admin_letter_categories",
+    ]);
+    if (!authresponse.isAuthorized) {
+      return authresponse.message;
     }
     const body = await request.json();
     const { name, description, isretired } = body;

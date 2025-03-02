@@ -1,12 +1,17 @@
 import { PrismaClient } from "@prisma/client";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import prisma from "lib/prisma";
+import { hasPermissions } from "lib/authTask";
 
 export async function POST(
-  req: Request,
+  req: NextRequest,
   { params }: { params: { action: string; uuid: string } }
 ) {
+  const authresponse = await hasPermissions(req, ["manage_users"]);
+  if (!authresponse.isAuthorized) {
+    return authresponse.message;
+  }
   const { action, uuid } = params;
 
   if (!uuid || !action) {
@@ -43,5 +48,5 @@ export async function POST(
       { error: "Failed to update user status" },
       { status: 500 }
     );
-  }  
+  }
 }

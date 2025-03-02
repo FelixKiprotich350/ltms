@@ -1,19 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "lib/prisma";
-import {  hasPermissions } from "lib/authTask";
+import { hasPermissions } from "lib/authTask";
 
 // GET: Fetch top 10 selling products
 export async function GET(request: NextRequest) {
   try {
-    const authresponse = await hasPermissions(request, [""]);
-    if (!authresponse) {
-      return NextResponse.json(
-        {
-          message: "Unauthorized",
-          error: "manage_admin_organisation_departments permission required",
-        },
-        { status: 401 }
-      );
+    const authresponse = await hasPermissions(request, ["view_admin_dashboard"]);
+    if (!authresponse.isAuthorized) {
+      return authresponse.message;
     }
     const categories = await prisma.letterCategory.count();
     const departments = await prisma.organisationDepartment.findMany({});

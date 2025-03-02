@@ -1,11 +1,16 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "lib/prisma";
+import { hasPermissions } from "lib/authTask";
 
 // GET: Fetch user permissions by UUID
 export async function GET(
-  req: Request,
+  req: NextRequest,
   { params }: { params: { uuid: string } }
 ) {
+  const authresponse = await hasPermissions(req, ["manage_users"]);
+  if (!authresponse.isAuthorized) {
+    return authresponse.message;
+  }
   const { uuid: userUuid } = params;
 
   if (!userUuid) {
@@ -27,15 +32,19 @@ export async function GET(
       { error: "Failed to fetch user permissions" },
       { status: 500 }
     );
-  }  
+  }
 }
 
 // POST: Assign permission to a user
 export async function POST(
-  req: Request,
+  req: NextRequest,
   { params }: { params: { uuid: string } }
 ) {
   try {
+    const authresponse = await hasPermissions(req, ["manage_users"]);
+    if (!authresponse.isAuthorized) {
+      return authresponse.message;
+    }
     const { uuid: userUuid } = params;
     const { permissionUuid } = await req.json();
 
@@ -57,15 +66,19 @@ export async function POST(
       { error: "Failed to assign permission" },
       { status: 500 }
     );
-  }  
+  }
 }
 
 // DELETE: Remove a permission by its UUID
 export async function DELETE(
-  req: Request,
+  req: NextRequest,
   { params }: { params: { uuid: string } }
 ) {
   try {
+    const authresponse = await hasPermissions(req, ["manage_users"]);
+    if (!authresponse.isAuthorized) {
+      return authresponse.message;
+    }
     const { uuid: userUuid } = params;
     const { permissionMasterUuid } = await req.json();
 
@@ -95,5 +108,5 @@ export async function DELETE(
       { error: "Failed to delete user permission" },
       { status: 500 }
     );
-  } 
+  }
 }
