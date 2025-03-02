@@ -1,12 +1,25 @@
 import { NextResponse } from "next/server";
 import prisma from "lib/prisma";
+import { hasPermission } from "lib/authTask";
 
 // GET: Get all departments
 export async function GET() {
   try {
+    const authresponse = await hasPermission(
+      "view_admin_organisation_departments"
+    );
+    if (!authresponse) {
+      return NextResponse.json(
+        {
+          message: "Unauthorized",
+          error: "view_admin_organisation_departments permission required",
+        },
+        { status: 401 }
+      );
+    }
     const departments = await prisma.organisationDepartment.findMany({
       include: { Users: true },
-    }); 
+    });
     return NextResponse.json(departments, { status: 200 });
   } catch (error) {
     console.error("Error fetching departments:", error);
@@ -19,6 +32,18 @@ export async function GET() {
 // POST: Create a new department
 export async function POST(request: Request) {
   try {
+    const authresponse = await hasPermission(
+      "manage_admin_organisation_departments"
+    );
+    if (!authresponse) {
+      return NextResponse.json(
+        {
+          message: "Unauthorized",
+          error: "manage_admin_organisation_departments permission required",
+        },
+        { status: 401 }
+      );
+    }
     const body = await request.json();
     const { name, description, activeStatus } = body;
 

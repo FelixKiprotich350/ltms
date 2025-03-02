@@ -44,7 +44,16 @@ export const authOptions: NextAuthOptions = {
             UserRole: true,
             Department: true,
             Person: true,
-            UserPermissions: true,
+            UserPermissions: {
+              include: {
+                PermissionMaster: {
+                  select: {
+                    uuid: true,
+                    codeName: true,
+                  },
+                },
+              },
+            },
           },
         });
 

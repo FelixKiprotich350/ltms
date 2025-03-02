@@ -27,7 +27,8 @@ declare global {
 let prisma: PrismaClient;
 
 if (!global.prisma) {
-  global.prisma = new PrismaClient({log: ["query", "info", "warn", "error"]});
+  // global.prisma = new PrismaClient({log: ["query", "info", "warn", "error"]});
+  global.prisma = new PrismaClient();
 }
 prisma = global.prisma;
 
