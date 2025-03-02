@@ -1,9 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "lib/prisma";
+import { hasPermissions } from "lib/authTask";
 
 // GET: Fetch all requests
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
+    const authresponse = await hasPermissions(request, ["view_all_letters"]);
+    if (!authresponse.isAuthorized) {
+      return authresponse.message;
+    }
     const url = new URL(request.url);
     const withRelations = url.searchParams.get("withrelations") === "true"; // Convert to boolean
 
