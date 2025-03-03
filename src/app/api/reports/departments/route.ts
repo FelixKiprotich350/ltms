@@ -7,16 +7,25 @@ export async function GET(request: NextRequest) {
   if (!authresponse.isAuthorized) {
     return authresponse.message;
   }
-  const departments = await prisma.letterTicket.findMany({
+
+  const departments = await prisma.organisationDepartment.findMany({
     include: {
-      Letter: true,
+      Letters: true,
+      Users: true,
+      RecipientsMaster: true,
     },
   });
 
-  
-//   LettersCount: number;
-//   RecipientsCount: number;
-//   TicketsCount: number;
-  return NextResponse.json(departments);
+  // Process the data to add counts
+  const departmentsWithCounts = departments.map((department) => ({
+    ...department,
+    LettersCount: department.Letters?.length ?? 0,
+    RecipientsCount: department.RecipientsMaster?.length ?? 0,
+    TicketsCount:
+      department.Letters.filter(
+        (l) => l.rootLetterUuid == null && l.parentLetterUuid == null
+      ).length ?? 0,
+  }));
+
+  return NextResponse.json(departmentsWithCounts);
 }
- 

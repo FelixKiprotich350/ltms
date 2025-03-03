@@ -109,9 +109,9 @@ const LeftPanelMenu: React.FC<LeftPanelMenuProps> = ({
           </Link>
         </SideNavMenu>
         <SideNavMenu title="Reports">
-          <Link href="/reports/summary" passHref legacyBehavior>
+          {/* <Link href="/reports/summary" passHref legacyBehavior>
             <SideNavMenuItem>Summary Reports</SideNavMenuItem>
-          </Link>
+          </Link> */}
           <Link href="/reports/letters" passHref legacyBehavior>
             <SideNavMenuItem>All Letters</SideNavMenuItem>
           </Link>

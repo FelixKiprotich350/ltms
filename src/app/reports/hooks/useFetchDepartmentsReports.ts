@@ -1,12 +1,5 @@
-import {
-  LetterRequest,
-  Person,
-  UserRole,
-  LtmsUser,
-  OrganisationDepartment,
-  LetterCategory,
-  LetterRecipient,
-  LetterTicket,
+import { 
+  OrganisationDepartment, 
 } from "@prisma/client";
 import { useEffect, useState } from "react";
 
