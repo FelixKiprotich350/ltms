@@ -173,7 +173,7 @@ export default function Dashboard() {
           marginTop: "4px",
           paddingLeft: "4px",
           paddingRight: "4px",
-          height: "calc(100vh - 250px)",
+          height: "calc(100vh - 210px)",
         }}
       >
         {/* Left Column - Scrollable Table */}

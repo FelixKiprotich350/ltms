@@ -48,7 +48,6 @@ export async function GET(request: Request) {
     // Parse request parameters
     const url = new URL(request.url);
     const withRelations = url.searchParams.get("withrelations") === "true";
-    console.log(user);
     // Fetch letters
     const letters = await prisma.draftedLetterRequest.findMany({
       where: {
