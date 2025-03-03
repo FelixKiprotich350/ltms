@@ -7,7 +7,7 @@ import { hasPermissions } from "lib/authTask";
 export async function GET(request: NextRequest) {
   try {
     // Get user session
-    const authresponse = await hasPermissions(request, ["view_active_tickets"]);
+    const authresponse = await hasPermissions(request, ["view_all_tickets"]);
     if (!authresponse.isAuthorized) {
       return authresponse.message;
     }

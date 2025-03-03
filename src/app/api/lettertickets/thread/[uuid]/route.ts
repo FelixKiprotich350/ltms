@@ -14,7 +14,7 @@ export async function GET(
 
   try {
     // Get user session
-    const authresponse = await hasPermissions(request, ["view_active_tickets"]);
+    const authresponse = await hasPermissions(request, ["view_thread_tickets"]);
     if (!authresponse.isAuthorized) {
       return authresponse.message;
     }
