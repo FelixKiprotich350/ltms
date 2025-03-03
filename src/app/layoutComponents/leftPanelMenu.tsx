@@ -14,7 +14,7 @@ import {
   SideNavMenu,
   SideNavMenuItem,
   SideNavLink,
-  Tag
+  Tag,
 } from "@carbon/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -45,7 +45,9 @@ const LeftPanelMenu: React.FC<LeftPanelMenuProps> = ({
             <SideNavMenuItem>New Request</SideNavMenuItem>
           </Link>
           <Link href="/requests/incoming" passHref legacyBehavior>
-            <SideNavMenuItem>Incoming Requests <Tag>11</Tag></SideNavMenuItem>
+            <SideNavMenuItem>
+              Incoming Requests <Tag>11</Tag>
+            </SideNavMenuItem>
           </Link>
           <Link href="/requests/outgoing" passHref legacyBehavior>
             <SideNavMenuItem>Outgoing Requests</SideNavMenuItem>
@@ -110,17 +112,14 @@ const LeftPanelMenu: React.FC<LeftPanelMenuProps> = ({
           <Link href="/reports/summary" passHref legacyBehavior>
             <SideNavMenuItem>Summary Reports</SideNavMenuItem>
           </Link>
-          <Link href="/reports/letterrlist" passHref legacyBehavior>
-            <SideNavMenuItem>Letters by Department</SideNavMenuItem>
+          <Link href="/reports/letters" passHref legacyBehavior>
+            <SideNavMenuItem>All Letters</SideNavMenuItem>
           </Link>
-          <Link href="/reports/payments" passHref legacyBehavior>
-            <SideNavMenuItem>Letters by Category</SideNavMenuItem>
+          <Link href="/reports/tickets" passHref legacyBehavior>
+            <SideNavMenuItem>Tickets</SideNavMenuItem>
           </Link>
-          <Link href="/reports/payments" passHref legacyBehavior>
-            <SideNavMenuItem>Notification Reports</SideNavMenuItem>
-          </Link>
-          <Link href="/reports/users" passHref legacyBehavior>
-            <SideNavMenuItem>User Reports</SideNavMenuItem>
+          <Link href="/reports/departments" passHref legacyBehavior>
+            <SideNavMenuItem>Departments</SideNavMenuItem>
           </Link>
         </SideNavMenu>
         <SideNavMenu title="My Account">
