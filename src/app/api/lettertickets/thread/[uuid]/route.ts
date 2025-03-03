@@ -1,26 +1,30 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth"; // Import session handler
 import prisma from "lib/prisma"; // Ensure Prisma client is properly imported
 import { authOptions } from "app/api/auth/[...nextauth]/route";
 import { LetterTicket } from "@prisma/client";
+import { hasPermissions } from "lib/authTask";
 
 // GET: Get all conversations for this thread
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { uuid: string } }
 ) {
   const { uuid } = params;
 
   try {
     // Get user session
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const authresponse = await hasPermissions(request, ["view_active_tickets"]);
+    if (!authresponse.isAuthorized) {
+      return authresponse.message;
     }
-
-    const userUuid = session.user.uuid;
-    if (!userUuid) {
-      return NextResponse.json({ error: "User is required" }, { status: 400 });
+    const res = await authresponse?.message.json();
+    const user = res?.data?.description?.user;
+    if (!user) {
+      return NextResponse.json(
+        { error: "User Data not found" },
+        { status: 400 }
+      );
     }
 
     const ticket = await prisma.letterTicket.findUnique({
@@ -45,7 +49,7 @@ export async function GET(
       { error: "Failed to update request and create ticket" },
       { status: 500 }
     );
-  }  
+  }
 }
 
 // Function to generate a unique ticket number

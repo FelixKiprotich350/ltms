@@ -1,24 +1,27 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import prisma from "lib/prisma";
 import { authOptions } from "app/api/auth/[...nextauth]/route";
+import { hasPermissions } from "lib/authTask";
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     // Get user session
-    const session = await getServerSession(authOptions);
-    const userUuid = session?.user?.uuid;
-    if (!userUuid)
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const authresponse = await hasPermissions(request, ["view_active_tickets"]);
+    if (!authresponse.isAuthorized) {
+      return authresponse.message;
+    }
+    const res = await authresponse?.message.json();
+    const user = res?.data?.description?.user;
+    if (!user) {
+      return NextResponse.json(
+        { error: "User Data not found" },
+        { status: 400 }
+      );
+    }
 
-    // Fetch user's department UUID
-    const user = await prisma.ltmsUser.findUnique({
-      where: { uuid: userUuid },
-      select: { Department: { select: { uuid: true } } },
-    });
-
-    const departmentUuid = user?.Department?.uuid;
-    if (!departmentUuid)
+    const departmentUuid = user?.OrganisationDepartment?.uuid;
+    if (!user?.OrganisationDepartment)
       return NextResponse.json(
         { error: "User department not found" },
         { status: 404 }
@@ -32,7 +35,7 @@ export async function GET(request: Request) {
           {
             RecipientMaster: {
               recipientType: "PERSON",
-              userPersonUuid: userUuid,
+              userPersonUuid: user?.uuid,
             },
           },
         ],
